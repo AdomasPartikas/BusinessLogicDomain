@@ -1,0 +1,24 @@
+{
+    "runtime": "Net80",
+    "documentGenerator": {
+        "fromDocument": {
+            "url": "$(ServiceHost)$(Url)",
+            "output": null
+        }
+    },
+    "codeGenerators": {
+      "openApiToCSharpClient": {
+        "generateClientClasses": true,
+        "generateClientInterfaces": false,
+        "injectHttpClient": true,
+        "disposeHttpClient": true,
+        "generateExceptionClasses": true,
+        "exceptionClass": "$(Name)Exception",
+        "exposeJsonSerializerSettings": true,
+        "className": "{controller}$(Namespace)",
+        "namespace": "BusinessLogicDomain.$(Name)",
+        "serviceHost": "$(ServiceHost)",
+        "output": "APIClients/$(Name)/$(Name).cs"
+      }
+    }
+  }
