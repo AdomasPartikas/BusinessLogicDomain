@@ -2,10 +2,20 @@ using BusinessLogicDomain.API.Services;
 using BusinessLogicDomain.MarketDataDomainAPIClient;
 using Hangfire;
 using Hangfire.MemoryStorage;
+using BusinessLogicDomain.MarketDataDbContext;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddDbContext<MarketDataContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("MarketDataDb"),
+        new MySqlServerVersion(new Version(8, 0, 39))
+    )
+);
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "BusinessLogicDomain.API", Version = "v1" });
@@ -22,6 +32,12 @@ builder.Services.AddHangfire(config =>
 builder.Services.AddHangfireServer();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<MarketDataContext>();
+    dbContext.Database.EnsureCreated();
+}
 
 app.UseHangfireDashboard();
 
