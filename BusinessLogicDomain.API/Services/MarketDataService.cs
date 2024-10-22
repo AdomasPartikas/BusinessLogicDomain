@@ -1,11 +1,14 @@
+using BusinessLogicDomain.API.Models;
+using BusinessLogicDomain.MarketDataDbContext;
 using BusinessLogicDomain.MarketDataDomainAPIClient;
 using OfficeOpenXml;
 
 namespace BusinessLogicDomain.API.Services
 {
-    public class MarketDataService(MarketDataDomainClient marketDataClient) : IMarketDataService
+    public class MarketDataService(MarketDataDomainClient marketDataClient, MarketDataContext context) : IMarketDataService
     {
         private readonly MarketDataDomainClient _marketDataClient = marketDataClient;
+        private readonly MarketDataContext _context = context;
         public async Task GetMarketData()
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -75,6 +78,15 @@ namespace BusinessLogicDomain.API.Services
             }
 
             package.Save();
+        }
+        private async Task CreateMarketDataEntriesInDb(ICollection<MarketDataDto> marketData){
+            foreach (var data in marketData){
+                // var tempHourPrice = new TempHourPrice{
+                    
+                // };
+                // _context.TempHourPrices.Add(tempHourPrice);
+                // _context.SaveChanges();
+            }
         }
     }
 }

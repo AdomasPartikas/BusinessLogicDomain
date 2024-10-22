@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddHttpClient<MarketDataDomainClient>();
-builder.Services.AddSingleton<IMarketDataService, MarketDataService>();
+builder.Services.AddScoped<IMarketDataService, MarketDataService>();
 
 builder.Services.AddHangfire(config =>
 {
