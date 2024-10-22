@@ -4,6 +4,7 @@ namespace BusinessLogicDomain.API.Models
 {
     public class UserTransactions
     {   
+        [Key]
         public required int ID { get; set; }
         [Required]
         public required UserProfile UserProfile { get; set; }

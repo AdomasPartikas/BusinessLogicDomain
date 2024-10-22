@@ -4,10 +4,11 @@ namespace BusinessLogicDomain.API.Models;
 
 public class TempHourPrice
 {
-    public int ID { get; set; }
+    [Key]
+    public required string ID { get; set; }
     [Required]
-    public decimal Price { get; set; }
+    public required decimal Price { get; set; }
     [Required]
-    public int TimeStamp { get; set; }
+    public required int TimeStamp { get; set; }
 }
 
