@@ -1,20 +1,16 @@
 using BusinessLogicDomain.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace BusinessLogicDomain.MarketDataDbContext
+namespace BusinessLogicDomain.API.Context.YouTradeDbContext
 {
-    public class MarketDataContext : DbContext
+    public class YouTradeContext(DbContextOptions<YouTradeContext> options) : DbContext(options)
     {
-        public MarketDataContext(DbContextOptions<MarketDataContext> options) : base(options)
-        {
-        }
-
         public DbSet<BuyOrder> BuyOrders { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<PriceHistory> PriceHistories { get; set; }
         public DbSet<SellOrder> SellOrders { get; set; }
-        public DbSet<TempDayPrice> TempDayPrices { get; set; }
-        public DbSet<TempHourPrice> TempHourPrices { get; set; }
+        public DbSet<LivePriceDaily> LivePriceDaily { get; set; }
+        public DbSet<LivePriceDistinct> LivePriceDistinct { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<UserTransactions> UserTransactions { get; set; }

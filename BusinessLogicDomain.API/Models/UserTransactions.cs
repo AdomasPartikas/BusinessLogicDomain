@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using BusinessLogicDomain.API.Models.Enum;
 
 namespace BusinessLogicDomain.API.Models
 {

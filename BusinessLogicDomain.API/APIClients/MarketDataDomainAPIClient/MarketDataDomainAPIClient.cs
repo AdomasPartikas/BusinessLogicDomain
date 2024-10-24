@@ -244,19 +244,16 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
 
         /// <returns>OK</returns>
         /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<QuoteDto> QuoteAsync(string symbol)
+        public virtual System.Threading.Tasks.Task<MarketStatusDto> MarketstatusAsync()
         {
-            return QuoteAsync(symbol, System.Threading.CancellationToken.None);
+            return MarketstatusAsync(System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
         /// <returns>OK</returns>
         /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<QuoteDto> QuoteAsync(string symbol, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<MarketStatusDto> MarketstatusAsync(System.Threading.CancellationToken cancellationToken)
         {
-            if (symbol == null)
-                throw new System.ArgumentNullException("symbol");
-
             var client_ = _httpClient;
             var disposeClient_ = false;
             try
@@ -268,9 +265,8 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
 
                     var urlBuilder_ = new System.Text.StringBuilder();
                     if (!string.IsNullOrEmpty(_baseUrl)) urlBuilder_.Append(_baseUrl);
-                    // Operation Path: "api/quote/{symbol}"
-                    urlBuilder_.Append("api/quote/");
-                    urlBuilder_.Append(System.Uri.EscapeDataString(ConvertToString(symbol, System.Globalization.CultureInfo.InvariantCulture)));
+                    // Operation Path: "api/marketstatus"
+                    urlBuilder_.Append("api/marketstatus");
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -297,7 +293,7 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            var objectResponse_ = await ReadObjectResponseAsync<QuoteDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            var objectResponse_ = await ReadObjectResponseAsync<MarketStatusDto>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new MarketDataDomainAPIClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
@@ -305,20 +301,14 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
                             return objectResponse_.Object;
                         }
                         else
-                        if (status_ == 204)
-                        {
-                            string responseText_ = ( response_.Content == null ) ? string.Empty : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
-                            throw new MarketDataDomainAPIClientException("No Content", status_, responseText_, headers_, null);
-                        }
-                        else
-                        if (status_ == 400)
+                        if (status_ == 404)
                         {
                             var objectResponse_ = await ReadObjectResponseAsync<ProblemDetails>(response_, headers_, cancellationToken).ConfigureAwait(false);
                             if (objectResponse_.Object == null)
                             {
                                 throw new MarketDataDomainAPIClientException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
                             }
-                            throw new MarketDataDomainAPIClientException<ProblemDetails>("Bad Request", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
+                            throw new MarketDataDomainAPIClientException<ProblemDetails>("Not Found", status_, objectResponse_.Text, headers_, objectResponse_.Object, null);
                         }
                         else
                         {
@@ -485,8 +475,31 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
         [Newtonsoft.Json.JsonProperty("percentChange", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public double? PercentChange { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("timestamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long? Timestamp { get; set; }
+        [Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset Date { get; set; }
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class MarketStatusDto
+    {
+        [Newtonsoft.Json.JsonProperty("exchange", Required = Newtonsoft.Json.Required.AllowNull)]
+        public string Exchange { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("holiday", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Holiday { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("isOpen", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool IsOpen { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("session", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public string Session { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("timestamp", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public long Timestamp { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("timezone", Required = Newtonsoft.Json.Required.AllowNull)]
+        public string Timezone { get; set; }
 
     }
 
@@ -516,35 +529,6 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class QuoteDto
-    {
-        [Newtonsoft.Json.JsonProperty("currentPrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? CurrentPrice { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("change", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? Change { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("percentChange", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? PercentChange { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("highPrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? HighPrice { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("lowPrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? LowPrice { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("openPrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? OpenPrice { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("previousClosePrice", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public double? PreviousClosePrice { get; set; }
-
-        [Newtonsoft.Json.JsonProperty("timestamp", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public long? Timestamp { get; set; }
 
     }
 

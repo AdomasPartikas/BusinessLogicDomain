@@ -20,6 +20,7 @@ namespace BusinessLogicDomain.API.Controller
         public async Task<IActionResult> GetAvailableStocks()
         {
             var marketData = await _marketDataClient.StocksymbolsAsync();
+
             return Ok(marketData);
         }
     }

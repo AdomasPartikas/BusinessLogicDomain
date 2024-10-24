@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BusinessLogicDomain.API.Models.Enum;
 
 namespace BusinessLogicDomain.API.Models
 {
@@ -21,5 +22,7 @@ namespace BusinessLogicDomain.API.Models
         public required DateTime TimeOfBuying { get; set; }
         [Required]
         public required decimal Quantity { get; set; }
+        [Required]
+        public required TransactionType TransactionType { get; set; }
     }
 }

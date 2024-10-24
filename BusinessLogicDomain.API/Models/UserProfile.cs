@@ -12,9 +12,9 @@ public class UserProfile
     [Required]
     public required string Balance { get; set; }
     [Required]
-    public required ICollection<UserTransactions> UserTransactions { get; set; } = new List<UserTransactions>();
+    public required ICollection<UserTransactions> UserTransactions { get; set; } = [];
     [Required]
-    public required ICollection<SellOrder> SellOrders { get; set; } = new List<SellOrder>();
+    public required ICollection<SellOrder> SellOrders { get; set; } = [];
     [Required]
-    public required ICollection<BuyOrder> BuyOrders { get; set; } = new List<BuyOrder>();
+    public required ICollection<BuyOrder> BuyOrders { get; set; } = [];
 }

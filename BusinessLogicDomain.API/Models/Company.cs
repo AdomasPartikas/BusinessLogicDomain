@@ -8,5 +8,7 @@ namespace BusinessLogicDomain.API.Models
         public required int ID { get; set; }
         [Required]
         public required string Name { get; set; }
+        [Required]
+        public required string Symbol { get; set; }
     }
 }
