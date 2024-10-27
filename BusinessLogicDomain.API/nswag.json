@@ -18,7 +18,9 @@
         "className": "{controller}$(Namespace)",
         "namespace": "BusinessLogicDomain.$(Name)",
         "serviceHost": "$(ServiceHost)",
-        "output": "APIClients/$(Name)/$(Name).cs"
+        "output": "APIClients/$(Name)/$(Name).cs",
+        "dateType": "System.DateTime",
+       "dateTimeType": "System.DateTime"
       }
     }
   }

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using BusinessLogicDomain.API.Models.Enum;
+using BusinessLogicDomain.API.Entities.Enum;
 
-namespace BusinessLogicDomain.API.Models
+namespace BusinessLogicDomain.API.Entities
 {
     public class UserTransactions
     {   

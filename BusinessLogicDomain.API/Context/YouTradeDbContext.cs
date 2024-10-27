@@ -1,4 +1,4 @@
-using BusinessLogicDomain.API.Models;
+using BusinessLogicDomain.API.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogicDomain.API.Context.YouTradeDbContext

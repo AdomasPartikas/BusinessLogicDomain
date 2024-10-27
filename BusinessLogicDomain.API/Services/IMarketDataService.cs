@@ -6,8 +6,8 @@ namespace BusinessLogicDomain.API.Services
     [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public interface IMarketDataService
     {
-        Task RetrieveMarketData();
-        Task RetrieveAndSaveAvailableStocks();
-        Task<bool> RetrieveMarketStatus();
+        Task RetrieveAndSaveMarketData();
+        Task RetrieveAndSaveAvailableCompanies();
+        Task RefreshMarketData();
     }
 }

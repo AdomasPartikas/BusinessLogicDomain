@@ -37,11 +37,14 @@ builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
-// using (var scope = app.Services.CreateScope())
-// {
-//     var dbContext = scope.ServiceProvider.GetRequiredService<YouTradeContext>();
-//     dbContext.Database.EnsureCreated();
-// }
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<YouTradeContext>();
+    dbContext.Database.EnsureCreated();
+
+    var marketDataService = scope.ServiceProvider.GetRequiredService<IMarketDataService>();
+    await marketDataService.RetrieveAndSaveAvailableCompanies();
+}
 
 app.UseHangfireDashboard();
 
@@ -50,8 +53,8 @@ app.UseHangfireServer();
 #pragma warning restore CS0618 // Type or member is obsolete
 
 RecurringJob.AddOrUpdate<IMarketDataService>(
-    "retrieve-market-status",
-    service => service.RetrieveMarketStatus(),
+    "refresh-market-data",
+    service => service.RefreshMarketData(),
     "*/1 * * * *");
 
 app.UseRouting();

@@ -476,7 +476,7 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
         public double? PercentChange { get; set; }
 
         [Newtonsoft.Json.JsonProperty("date", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        public System.DateTimeOffset Date { get; set; }
+        public System.DateTime Date { get; set; }
 
     }
 

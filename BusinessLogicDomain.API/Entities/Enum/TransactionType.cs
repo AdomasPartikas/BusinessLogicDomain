@@ -1,4 +1,4 @@
-namespace BusinessLogicDomain.API.Models.Enum
+namespace BusinessLogicDomain.API.Entities.Enum
 {
     public enum TransactionType
     {

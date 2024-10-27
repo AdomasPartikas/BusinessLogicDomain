@@ -1,14 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BusinessLogicDomain.API.Models
+namespace BusinessLogicDomain.API.Entities
 {
     public class Company
     {
         [Key]
-        public required int ID { get; set; }
+        public required string ID { get; set; }
         [Required]
         public required string Name { get; set; }
-        [Required]
-        public required string Symbol { get; set; }
     }
 }
