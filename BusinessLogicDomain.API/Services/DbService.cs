@@ -166,7 +166,7 @@ namespace BusinessLogicDomain.API.Services
             return user;
         }
 
-        public async Task<UserProfile> RetrieveUserProfile(string userName)
+        public async Task<UserProfile?> RetrieveUserProfile(string userName)
         {
             var userProfile = await _context.UserProfiles
                 .Include(up => up.User)
@@ -175,13 +175,15 @@ namespace BusinessLogicDomain.API.Services
                 .Include(up => up.SellOrders)
                 .FirstOrDefaultAsync(up => up.User.UserName == userName);
 
-            return userProfile!;
+            return userProfile;
         }
 
-        public async Task UpdateUserProfile(UserProfile userProfile)
+        public async Task<UserProfile> UpdateUserProfile(UserProfile userProfile)
         {
             _context.UserProfiles.Update(userProfile);
             await _context.SaveChangesAsync();
+
+            return userProfile;
         }
 
         public async Task UpdateUser(User user)
@@ -189,5 +191,7 @@ namespace BusinessLogicDomain.API.Services
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
         }
+
+
     }
 }

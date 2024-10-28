@@ -18,6 +18,7 @@ namespace BusinessLogicDomain.API.Services
         Task<User> CreateUser(UserDTO newUser);
         Task<UserProfile> CreateUserProfile(User newUser, decimal balance);
         Task UpdateUser(User user);
-        
+        Task<UserProfile?> RetrieveUserProfile(string userName);
+        Task<UserProfile> UpdateUserProfile(UserProfile existingUserProfile);
     }
 }

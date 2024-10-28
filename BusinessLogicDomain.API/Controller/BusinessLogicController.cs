@@ -129,5 +129,45 @@ namespace BusinessLogicDomain.API.Controller
 
             return Ok(existingUser);
         }
+
+        [HttpPost("userprofile/getuserprofile")]
+        [ProducesResponseType(200, Type = typeof(Entities.UserProfile))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetUserProfile([FromQuery] string userName)
+        {
+            var existingUser = await _dbService.RetrieveUser(userName);
+
+            if(existingUser == null)
+                return BadRequest("User does not exist");
+
+            var userProfiles = await _dbService.RetrieveUserProfile(userName);
+
+            if(userProfiles == null)
+                return NoContent();
+
+            return Ok(userProfiles);
+        }
+
+        [HttpPost("userprofile/updateuserprofilebalance")]
+        [ProducesResponseType(200, Type = typeof(Entities.UserProfile))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UpdateUserProfileBalance([FromQuery] string userName, [FromQuery] decimal balance)
+        {
+            var existingUser = await _dbService.RetrieveUser(userName);
+
+            if(existingUser == null)
+                return BadRequest("User does not exist");
+
+            var existingUserProfile = await _dbService.RetrieveUserProfile(userName);
+
+            if(existingUserProfile == null)
+                return BadRequest("User profile does not exist");
+
+            existingUserProfile.Balance = balance;
+
+            await _dbService.UpdateUserProfile(existingUserProfile);
+
+            return Ok(existingUserProfile);
+        }
     }
 }
