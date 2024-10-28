@@ -17,6 +17,17 @@ builder.Services.AddDbContext<YouTradeContext>(options =>
     )
 );
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        policy =>
+        {
+            policy.WithOrigins("https://our-very-friendly-frontend-url") 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new() { Title = "BusinessLogicDomain.API", Version = "v1" });
@@ -59,6 +70,9 @@ RecurringJob.AddOrUpdate<IMarketDataService>(
 
 app.UseRouting();
 app.UseHttpsRedirection();
+
+app.UseCors("AllowSpecificOrigin");
+
 app.MapControllers();
 
 app.UseSwagger();
