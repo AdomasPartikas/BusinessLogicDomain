@@ -148,7 +148,7 @@ namespace BusinessLogicDomain.API.Services
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,
                 DateOfBirth = newUser.DateOfBirth,
-                Address = newUser.Address,
+                Email = newUser.Email,
             };
 
             await _context.Users.AddAsync(user);
@@ -169,6 +169,13 @@ namespace BusinessLogicDomain.API.Services
         public async Task<User?> RetrieveUserByUsername(string username)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
+
+            return user;
+        }
+
+        public async Task<User?> RetrieveUserByEmail(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
             return user;
         }

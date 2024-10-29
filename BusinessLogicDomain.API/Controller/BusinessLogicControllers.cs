@@ -96,6 +96,11 @@ namespace BusinessLogicDomain.API.Controller
             if (existingUser != null)
                 return BadRequest("User already exists");
 
+            var userWithEmail = await _dbService.RetrieveUserByEmail(newUser.Email);
+
+            if (userWithEmail != null)
+                return BadRequest("Email already exists");
+
             var user = await _dbService.CreateUser(newUser);
 
             return Ok(user);
@@ -179,10 +184,18 @@ namespace BusinessLogicDomain.API.Controller
             if (existingUser == null)
                 return BadRequest("User does not exist");
 
+            if(updatedUserInfo.Email != existingUser.Email)
+            {
+                var userWithEmail = await _dbService.RetrieveUserByEmail(updatedUserInfo.Email);
+
+                if (userWithEmail != null)
+                    return BadRequest("Email already exists");
+            }
+
             existingUser.FirstName = updatedUserInfo.FirstName;
             existingUser.LastName = updatedUserInfo.LastName;
             existingUser.DateOfBirth = updatedUserInfo.DateOfBirth;
-            existingUser.Address = updatedUserInfo.Address;
+            existingUser.Email = updatedUserInfo.Email;
 
             await _dbService.UpdateUser(existingUser);
 

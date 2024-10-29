@@ -23,8 +23,6 @@ namespace BusinessLogicDomain.API.Entities
         [Required]
         public required decimal Quantity { get; set; }
         [Required]
-        public required TransactionType TransactionType { get; set; } 
-        [Required]
         public required TransactionStatus TransactionStatus { get; set; }
     }
 }

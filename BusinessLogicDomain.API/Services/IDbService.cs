@@ -16,6 +16,7 @@ namespace BusinessLogicDomain.API.Services
         Task<List<PriceHistory>> GetCompanyPriceHistory(string symbol, DateTime startDate, DateTime endDate);
         Task<User?> RetrieveUser(int id);
         Task<User?> RetrieveUserByUsername(string username);
+        Task<User?> RetrieveUserByEmail(string email);
         Task<User> CreateUser(UserRegisterDTO newUser);
         Task<UserProfile> CreateUserProfile(User newUser, decimal balance);
         Task UpdateUser(User user);
