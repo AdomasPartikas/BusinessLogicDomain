@@ -140,6 +140,11 @@ namespace BusinessLogicDomain.API.Controller
             if (existingUser == null)
                 return BadRequest("User does not exist");
 
+            var userWithUsername = await _dbService.RetrieveUserByUsername(username);
+
+            if (userWithUsername != null)
+                return BadRequest("Username already exists");
+
             existingUser.UserName = username;
 
             await _dbService.UpdateUser(existingUser);
@@ -184,7 +189,7 @@ namespace BusinessLogicDomain.API.Controller
             return Ok(existingUser);
         }
     }
-    
+
     [Route("api/userprofile")]
     [ApiController]
     public class UserProfileController(IDbService dbService) : ControllerBase
