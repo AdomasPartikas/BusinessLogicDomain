@@ -5,6 +5,7 @@ using BusinessLogicDomain.API.Entities;
 using BusinessLogicDomain.MarketDataDomainAPIClient;
 using Microsoft.EntityFrameworkCore;
 using BusinessLogicDomain.API.Models;
+using BusinessLogicDomain.API.Entities.Enum;
 
 namespace BusinessLogicDomain.API.Services
 {
@@ -122,12 +123,13 @@ namespace BusinessLogicDomain.API.Services
                 .ToListAsync();
         }
 
-        public async Task<UserProfile> CreateUserProfile(User newUser, decimal balance)
+        public async Task<UserProfile> CreateUserProfile(User newUser, decimal balance, SimulationLevel simulationLevel)
         {
             var userProfile = new UserProfile
             {
                 User = newUser,
                 Balance = balance,
+                SimulationLevel = simulationLevel,
                 UserTransactions = [],
                 BuyOrders = [],
                 SellOrders = []
@@ -154,7 +156,7 @@ namespace BusinessLogicDomain.API.Services
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            await CreateUserProfile(user, newUser.Balance);
+            await CreateUserProfile(user, newUser.Balance, newUser.SimulationLevel);
 
             return user;
         }

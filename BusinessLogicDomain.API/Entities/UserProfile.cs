@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BusinessLogicDomain.API.Entities.Enum;
 
 namespace BusinessLogicDomain.API.Entities
 {
@@ -12,6 +13,8 @@ namespace BusinessLogicDomain.API.Entities
         public required User User { get; set; }
         [Required]
         public required decimal Balance { get; set; }
+        [Required]
+        public required SimulationLevel SimulationLevel { get; set; }
         [Required]
         public required ICollection<UserTransactions> UserTransactions { get; set; } = [];
         [Required]

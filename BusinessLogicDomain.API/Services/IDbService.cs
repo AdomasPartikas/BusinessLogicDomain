@@ -1,4 +1,5 @@
 using BusinessLogicDomain.API.Entities;
+using BusinessLogicDomain.API.Entities.Enum;
 using BusinessLogicDomain.API.Models;
 using BusinessLogicDomain.MarketDataDomainAPIClient;
 
@@ -18,7 +19,7 @@ namespace BusinessLogicDomain.API.Services
         Task<User?> RetrieveUserByUsername(string username);
         Task<User?> RetrieveUserByEmail(string email);
         Task<User> CreateUser(UserRegisterDTO newUser);
-        Task<UserProfile> CreateUserProfile(User newUser, decimal balance);
+        Task<UserProfile> CreateUserProfile(User newUser, decimal balance, SimulationLevel simulationLevel);
         Task UpdateUser(User user);
         Task<UserProfile?> RetrieveUserProfile(int id);
         Task<UserProfile> UpdateUserProfile(UserProfile existingUserProfile);

@@ -1,3 +1,5 @@
+using BusinessLogicDomain.API.Entities.Enum;
+
 namespace BusinessLogicDomain.API.Models
 {
     public class UserRegisterDTO
@@ -9,6 +11,7 @@ namespace BusinessLogicDomain.API.Models
         public required DateTime DateOfBirth { get; set; }
         public required string Email { get; set; }
         public required decimal Balance { get; set; }
+        public required SimulationLevel SimulationLevel { get; set; }
     }
 
     public class UserLoginDTO
