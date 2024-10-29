@@ -14,11 +14,12 @@ namespace BusinessLogicDomain.API.Services
         Task<LivePriceDistinct> GetCompanyLivePriceDistinct(string symbol);
         Task<List<LivePriceDaily>> GetCompanyLivePriceDaily(string symbol);
         Task<List<PriceHistory>> GetCompanyPriceHistory(string symbol, DateTime startDate, DateTime endDate);
-        Task<User?> RetrieveUser(string userName);
-        Task<User> CreateUser(UserDTO newUser);
+        Task<User?> RetrieveUser(int id);
+        Task<User?> RetrieveUserByUsername(string username);
+        Task<User> CreateUser(UserRegisterDTO newUser);
         Task<UserProfile> CreateUserProfile(User newUser, decimal balance);
         Task UpdateUser(User user);
-        Task<UserProfile?> RetrieveUserProfile(string userName);
+        Task<UserProfile?> RetrieveUserProfile(int id);
         Task<UserProfile> UpdateUserProfile(UserProfile existingUserProfile);
     }
 }

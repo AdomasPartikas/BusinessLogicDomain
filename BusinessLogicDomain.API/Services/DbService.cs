@@ -139,7 +139,7 @@ namespace BusinessLogicDomain.API.Services
             return userProfile;
         }
 
-        public async Task<User> CreateUser(UserDTO newUser)
+        public async Task<User> CreateUser(UserRegisterDTO newUser)
         {
             var user = new User
             {
@@ -159,21 +159,28 @@ namespace BusinessLogicDomain.API.Services
             return user;
         }
 
-        public async Task<User?> RetrieveUser(string userName)
+        public async Task<User?> RetrieveUser(int id)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == userName);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.ID == id);
 
             return user;
         }
 
-        public async Task<UserProfile?> RetrieveUserProfile(string userName)
+        public async Task<User?> RetrieveUserByUsername(string username)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == username);
+
+            return user;
+        }
+
+        public async Task<UserProfile?> RetrieveUserProfile(int id)
         {
             var userProfile = await _context.UserProfiles
                 .Include(up => up.User)
                 .Include(up => up.UserTransactions)
                 .Include(up => up.BuyOrders)
                 .Include(up => up.SellOrders)
-                .FirstOrDefaultAsync(up => up.User.UserName == userName);
+                .FirstOrDefaultAsync(up => up.User.ID == id);
 
             return userProfile;
         }
