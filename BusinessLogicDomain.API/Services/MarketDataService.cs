@@ -15,7 +15,7 @@ namespace BusinessLogicDomain.API.Services
             if(marketData == null)
                 return; //TODO: Log error
 
-            await _dbService.RefreshLiveDistinctMarketData(marketData);
+            await _dbService.UpdateLiveDistinctMarketData(marketData);
         }
 
         public async Task RetrieveAndSaveAvailableCompanies()

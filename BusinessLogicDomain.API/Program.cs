@@ -66,7 +66,7 @@ app.UseHangfireServer();
 RecurringJob.AddOrUpdate<IMarketDataService>(
     "refresh-market-data",
     service => service.RefreshMarketData(),
-    "*/1 * * * *");
+    "*/2 * * * *");
 
 app.UseRouting();
 app.UseHttpsRedirection();

@@ -24,22 +24,31 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task RefreshLiveDistinctMarketData(ICollection<MarketDataDto> marketData)
+        public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData)
         {
             if(_context.LivePriceDistinct.Any())
                 await UpdateLiveDailyMarketData(_context.LivePriceDistinct.ToList());
 
-            await ClearLivePriceDistinct();
-
             var livePriceDistincts = marketData.Select(data => _mapper.Map<LivePriceDistinct>(data)).ToList();
-            await _context.LivePriceDistinct.AddRangeAsync(livePriceDistincts);
+
+            foreach(var record in livePriceDistincts)
+            {
+                var existingRecord = await _context.LivePriceDistinct.FirstOrDefaultAsync(l => l.ID == record.ID);
+
+                if (existingRecord != null)
+                {
+                    existingRecord.Price = record.Price;
+                    existingRecord.Date = record.Date;
+                }
+                else
+                    await _context.LivePriceDistinct.AddAsync(record);
+            }
+
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdatePriceHistory()
         {
-            await ClearLivePriceDistinct();
-
             var livePriceDailies = await _context.LivePriceDaily
             .GroupBy(l => l.Company.ID)
             .Select(g => g.OrderByDescending(l => l.Date).FirstOrDefault())
@@ -54,12 +63,6 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
 
             await ClearLivePriceDaily();
-        }
-
-        private async Task ClearLivePriceDistinct()
-        {
-            _context.LivePriceDistinct.RemoveRange(_context.LivePriceDistinct);
-            await _context.SaveChangesAsync();
         }
 
         private async Task ClearLivePriceDaily()

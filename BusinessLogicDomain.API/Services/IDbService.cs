@@ -8,7 +8,7 @@ namespace BusinessLogicDomain.API.Services
     public interface IDbService
     {
         Task InitializeCompanies(ICollection<StockSymbolDto> stockSymbols);
-        Task RefreshLiveDistinctMarketData(ICollection<MarketDataDto> marketData);
+        Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData);
         Task<List<Company>> RetrieveInitializedCompanies();
         Task<Company> RetrieveCompanyBySymbol(string symbol);
         Task UpdatePriceHistory();

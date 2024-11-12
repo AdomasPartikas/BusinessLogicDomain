@@ -24,28 +24,39 @@ namespace BusinessLogicDomain.API.Controller
             return Ok(companies);
         }
 
-        [HttpGet("marketdata/getcompanylivepricedistinct/{symbol}")]
-        [ProducesResponseType(200, Type = typeof(Entities.LivePriceDistinct))]
+        [HttpGet("marketdata/getcompanylivepricedistinct")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Entities.LivePriceDistinct>))]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> GetCompanyLivePriceDistinct(string symbol)
+        public async Task<IActionResult> GetCompanyLivePriceDistinct([FromQuery] string symbols)
         {
-            var company = await _dbService.RetrieveCompanyBySymbol(symbol);
+            if (string.IsNullOrEmpty(symbols))
+                return BadRequest("Symbols parameter is required.");
 
-            if (company == null)
+            var symbolList = symbols.Split(',').Select(s => s.Trim()).ToList();
+
+            var prices = new List<Entities.LivePriceDistinct>();
+
+            foreach (var symbol in symbolList)
+            {
+                var company = await _dbService.RetrieveCompanyBySymbol(symbol);
+                if (company == null)
+                    continue;
+
+                var price = await _dbService.GetCompanyLivePriceDistinct(symbol);
+                if (price != null)
+                    prices.Add(price);
+            }
+
+            if (prices.Count == 0)
                 return NoContent();
 
-            var price = await _dbService.GetCompanyLivePriceDistinct(symbol);
-
-            if (price == null)
-                return NoContent();
-
-            return Ok(price);
+            return Ok(prices);
         }
 
-        [HttpGet("marketdata/getcompanylivepricedaily/{symbol}")]
+        [HttpGet("marketdata/getcompanylivepricedaily")]
         [ProducesResponseType(200, Type = typeof(List<Entities.LivePriceDaily>))]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> GetCompanyLivePriceDaily(string symbol)
+        public async Task<IActionResult> GetCompanyLivePriceDaily([FromQuery] string symbol)
         {
             var company = await _dbService.RetrieveCompanyBySymbol(symbol);
 
@@ -60,10 +71,10 @@ namespace BusinessLogicDomain.API.Controller
             return Ok(priceHistory);
         }
 
-        [HttpGet("marketdata/getcompanypricehistory/{symbol}")]
+        [HttpGet("marketdata/getcompanypricehistory")]
         [ProducesResponseType(200, Type = typeof(List<Entities.PriceHistory>))]
         [ProducesResponseType(204)]
-        public async Task<IActionResult> GetCompanyPriceHistory(string symbol, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        public async Task<IActionResult> GetCompanyPriceHistory([FromQuery] string symbol, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             var company = await _dbService.RetrieveCompanyBySymbol(symbol);
 
