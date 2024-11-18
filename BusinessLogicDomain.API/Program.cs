@@ -5,28 +5,35 @@ using Hangfire.MemoryStorage;
 using BusinessLogicDomain.API.Context.YouTradeDbContext;
 using Microsoft.EntityFrameworkCore;
 using BusinessLogicDomain.API.Profile;
+using Newtonsoft.Json;
 
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllers();
-builder.Services.AddDbContext<YouTradeContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("YouTradeDb"),
-        new MySqlServerVersion(new Version(8, 0, 39))
-    )
-);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
         policy =>
         {
-            policy.WithOrigins("https://our-very-friendly-frontend-url") 
+            policy.WithOrigins("http://localhost:5173/") 
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
+
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+    });
+
+builder.Services.AddDbContext<YouTradeContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("YouTradeDb"),
+        new MySqlServerVersion(new Version(8, 0, 39))
+    ).UseLazyLoadingProxies()
+);
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -38,6 +45,7 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 builder.Services.AddHttpClient<MarketDataDomainClient>();
 builder.Services.AddScoped<IMarketDataService, MarketDataService>();
 builder.Services.AddScoped<IDbService, DbService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 builder.Services.AddHangfire(config =>
 {
@@ -55,6 +63,7 @@ using (var scope = app.Services.CreateScope())
 
     var marketDataService = scope.ServiceProvider.GetRequiredService<IMarketDataService>();
     await marketDataService.RetrieveAndSaveAvailableCompanies();
+    await marketDataService.RefreshMarketData();
 }
 
 app.UseHangfireDashboard();
@@ -66,6 +75,11 @@ app.UseHangfireServer();
 RecurringJob.AddOrUpdate<IMarketDataService>(
     "refresh-market-data",
     service => service.RefreshMarketData(),
+    "*/2 * * * *");
+
+RecurringJob.AddOrUpdate<ITransactionService>(
+    "refresh-user-transactions-portfolios",
+    service => service.CreateIndividualJobs(),
     "*/2 * * * *");
 
 app.UseRouting();

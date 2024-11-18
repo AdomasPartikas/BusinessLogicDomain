@@ -16,11 +16,23 @@ namespace BusinessLogicDomain.API.Services
 
         public async Task InitializeCompanies(ICollection<StockSymbolDto> stockSymbols)
         {
-            _context.Companies.RemoveRange(_context.Companies);
-            await _context.SaveChangesAsync();
+            foreach (var symbol in stockSymbols)
+            {
+                var existingCompany = await _context.Companies.FirstOrDefaultAsync(c => c.ID == symbol.DisplaySymbol);
 
-            var companies = stockSymbols.Select(symbol => _mapper.Map<Company>(symbol)).ToList();
-            await _context.Companies.AddRangeAsync(companies);
+                var mapped = _mapper.Map<Company>(symbol);
+
+                if (existingCompany != null)
+                {
+                    existingCompany.Name = mapped.Name;
+                    existingCompany.ID = mapped.ID;
+                }
+                else
+                {
+                    await _context.Companies.AddAsync(mapped);
+                }
+            }
+
             await _context.SaveChangesAsync();
         }
 
@@ -134,8 +146,7 @@ namespace BusinessLogicDomain.API.Services
                 Balance = balance,
                 SimulationLevel = simulationLevel,
                 UserTransactions = [],
-                BuyOrders = [],
-                SellOrders = []
+                UserPortfolioStocks = []
             };
 
             await _context.UserProfiles.AddAsync(userProfile);
@@ -190,8 +201,8 @@ namespace BusinessLogicDomain.API.Services
             var userProfile = await _context.UserProfiles
                 .Include(up => up.User)
                 .Include(up => up.UserTransactions)
-                .Include(up => up.BuyOrders)
-                .Include(up => up.SellOrders)
+                .Include(up => up.UserPortfolioStocks)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(up => up.User.ID == id);
 
             return userProfile;
@@ -211,6 +222,32 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
+        public async Task<decimal> GetCurrentStockPriceOfCompany(string symbol)
+        {
+            var company = await RetrieveCompanyBySymbol(symbol);
+            var livePriceDistinct = await GetCompanyLivePriceDistinct(symbol);
+
+            return livePriceDistinct.Price;
+        }
+
+        public async Task UpdateTransaction(UserTransaction transaction)
+        {
+            _context.UserTransactions.Update(transaction);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<UserProfile>> RetrieveAllUserProfiles()
+        {
+            var userProfiles = await _context.UserProfiles
+                .Include(up => up.User)
+                .Include(up => up.UserTransactions)
+                .Include(up => up.UserPortfolioStocks)
+                .AsSplitQuery()
+                .ToListAsync();
+
+            return userProfiles;
+        }
 
     }
 }

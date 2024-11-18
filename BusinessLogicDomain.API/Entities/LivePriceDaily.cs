@@ -8,7 +8,7 @@ namespace BusinessLogicDomain.API.Entities
         [Key]
         public required int ID { get; set; }
         [Required]
-        public required Company Company { get; set; }
+        public required virtual Company Company { get; set; }
         [Required]
         public required decimal Price { get; set; }
         [Required]

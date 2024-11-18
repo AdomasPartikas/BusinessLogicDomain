@@ -19,7 +19,5 @@ namespace BusinessLogicDomain.API.Entities
         public required DateTime DateOfBirth { get; set; }
         [Required]
         public required string Email { get; set; }
-        //Deleted user profile
-
     }
 }

@@ -10,16 +10,17 @@ namespace BusinessLogicDomain.API.Entities
         [Key]
         public int ID { get; set; }
         [Required]
-        public required User User { get; set; }
+        public int UserId { get; set; }
+        [ForeignKey("UserId")]
+        [Required]
+        public required virtual User User { get; set; }
         [Required]
         public required decimal Balance { get; set; }
         [Required]
         public required SimulationLevel SimulationLevel { get; set; }
         [Required]
-        public required ICollection<UserTransactions> UserTransactions { get; set; } = [];
+        public required virtual ICollection<UserTransaction> UserTransactions { get; set; } = [];
         [Required]
-        public required ICollection<SellOrder> SellOrders { get; set; } = [];
-        [Required]
-        public required ICollection<BuyOrder> BuyOrders { get; set; } = [];
+        public required virtual ICollection<PortfolioStock> UserPortfolioStocks { get; set; } = [];
     }
 }

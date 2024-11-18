@@ -6,17 +6,15 @@ namespace BusinessLogicDomain.API.Controller
 {
     [Route("api/marketdata")]
     [ApiController]
-    public class MarketDataController(MarketDataDomainClient marketDataClient, IDbService dbService) : ControllerBase
+    public class MarketDataController(IDbService dbService) : ControllerBase
     {
-        private readonly MarketDataDomainClient _marketDataClient = marketDataClient;
-        private readonly IDbService _dbService = dbService;
 
         [HttpGet("getallcompanies")]
         [ProducesResponseType(200, Type = typeof(List<Entities.Company>))]
         [ProducesResponseType(204)]
         public async Task<IActionResult> GetAllCompanies()
         {
-            var companies = await _dbService.RetrieveInitializedCompanies();
+            var companies = await dbService.RetrieveInitializedCompanies();
 
             if (companies == null)
                 return NoContent();
@@ -38,11 +36,11 @@ namespace BusinessLogicDomain.API.Controller
 
             foreach (var symbol in symbolList)
             {
-                var company = await _dbService.RetrieveCompanyBySymbol(symbol);
+                var company = await dbService.RetrieveCompanyBySymbol(symbol);
                 if (company == null)
                     continue;
 
-                var price = await _dbService.GetCompanyLivePriceDistinct(symbol);
+                var price = await dbService.GetCompanyLivePriceDistinct(symbol);
                 if (price != null)
                     prices.Add(price);
             }
@@ -58,12 +56,12 @@ namespace BusinessLogicDomain.API.Controller
         [ProducesResponseType(204)]
         public async Task<IActionResult> GetCompanyLivePriceDaily([FromQuery] string symbol)
         {
-            var company = await _dbService.RetrieveCompanyBySymbol(symbol);
+            var company = await dbService.RetrieveCompanyBySymbol(symbol);
 
             if (company == null)
                 return NoContent();
 
-            var priceHistory = await _dbService.GetCompanyLivePriceDaily(symbol);
+            var priceHistory = await dbService.GetCompanyLivePriceDaily(symbol);
 
             if (priceHistory == null)
                 return NoContent();
@@ -76,12 +74,12 @@ namespace BusinessLogicDomain.API.Controller
         [ProducesResponseType(204)]
         public async Task<IActionResult> GetCompanyPriceHistory([FromQuery] string symbol, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            var company = await _dbService.RetrieveCompanyBySymbol(symbol);
+            var company = await dbService.RetrieveCompanyBySymbol(symbol);
 
             if (company == null)
                 return NoContent();
 
-            var priceHistory = await _dbService.GetCompanyPriceHistory(symbol, startDate, endDate);
+            var priceHistory = await dbService.GetCompanyPriceHistory(symbol, startDate, endDate);
 
             if (priceHistory == null || priceHistory.Count == 0)
                 return NoContent();
@@ -216,7 +214,7 @@ namespace BusinessLogicDomain.API.Controller
 
     [Route("api/userprofile")]
     [ApiController]
-    public class UserProfileController(IDbService dbService) : ControllerBase
+    public class UserProfileController(IDbService dbService, ITransactionService transactionService) : ControllerBase
     {
         private readonly IDbService _dbService = dbService;
 
@@ -235,9 +233,13 @@ namespace BusinessLogicDomain.API.Controller
             if (userProfiles == null)
                 return NoContent();
 
+            if(userProfiles.User.ID != id)
+                return BadRequest("User profile does not exist");
+
             return Ok(userProfiles);
         }
 
+        //Will be depracated since the balance shouldn't be updated directly
         [HttpPost("updateuserprofilebalance")]
         [ProducesResponseType(200, Type = typeof(Entities.UserProfile))]
         [ProducesResponseType(400)]
@@ -258,6 +260,93 @@ namespace BusinessLogicDomain.API.Controller
             await _dbService.UpdateUserProfile(existingUserProfile);
 
             return Ok(existingUserProfile);
+        }
+
+        //Need to add in summary that the id is the user id
+        [HttpPost("buy")]
+        [ProducesResponseType(204, Type = typeof(Entities.UserTransaction))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> Buy([FromQuery] int id, [FromBody] Models.BuyStockDTO buyStock)
+        {
+            var existingUser = await _dbService.RetrieveUser(id);
+
+            if (existingUser == null)
+                return BadRequest("User does not exist");
+
+            var existingUserProfile = await _dbService.RetrieveUserProfile(id);
+
+            if (existingUserProfile == null)
+                return BadRequest("User profile does not exist");
+
+            var company = await _dbService.RetrieveCompanyBySymbol(buyStock.Symbol);
+
+            if (company == null)
+                return BadRequest("Company does not exist");
+
+            var currentStockPrice = await _dbService.GetCurrentStockPriceOfCompany(buyStock.Symbol);
+            var stockAmount = buyStock.Value / currentStockPrice;
+
+            if (existingUserProfile.Balance < buyStock.Value)
+                return BadRequest("Insufficient funds");
+
+            var userTransaction = new Entities.UserTransaction
+            {
+                Company = company,
+                Quantity = stockAmount,
+                TransactionType = Entities.Enum.TransactionType.Buy,
+                TransactionStatus = Entities.Enum.TransactionStatus.Pending,
+                TransactionValue = buyStock.Value,
+                StockValue = currentStockPrice,
+                TimeOfTransaction = DateTime.Now
+            };
+
+            existingUserProfile.UserTransactions.Add(userTransaction);
+
+            var executedResponse = await transactionService.ExecuteTransaction(existingUserProfile, userTransaction);
+
+            return Ok(executedResponse);
+        }
+
+        //Need to add in summary that the id is the user id
+        [HttpPost("sell")]
+        [ProducesResponseType(204, Type = typeof(Entities.UserTransaction))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> Sell([FromQuery] int id, [FromBody] Models.SellStockDTO sellStock)
+        {
+            var existingUser = await _dbService.RetrieveUser(id);
+
+            if (existingUser == null)
+                return BadRequest("User does not exist");
+
+            var existingUserProfile = await _dbService.RetrieveUserProfile(id);
+
+            if (existingUserProfile == null)
+                return BadRequest("User profile does not exist");
+
+            var company = await _dbService.RetrieveCompanyBySymbol(sellStock.Symbol);
+
+            if (company == null)
+                return BadRequest("Company does not exist");
+
+            var currentStockPrice = await _dbService.GetCurrentStockPriceOfCompany(sellStock.Symbol);
+            var stockAmount = sellStock.Value / currentStockPrice;
+
+            var userTransaction = new Entities.UserTransaction
+            {
+                Company = company,
+                Quantity = stockAmount,
+                TransactionType = Entities.Enum.TransactionType.Sell,
+                TransactionStatus = Entities.Enum.TransactionStatus.Pending,
+                TransactionValue = sellStock.Value,
+                StockValue = currentStockPrice,
+                TimeOfTransaction = DateTime.Now
+            };
+
+            existingUserProfile.UserTransactions.Add(userTransaction);
+
+            var executedResponse = await transactionService.ExecuteTransaction(existingUserProfile, userTransaction);
+
+            return Ok(executedResponse);
         }
     }
 }

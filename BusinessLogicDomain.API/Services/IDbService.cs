@@ -23,5 +23,8 @@ namespace BusinessLogicDomain.API.Services
         Task UpdateUser(User user);
         Task<UserProfile?> RetrieveUserProfile(int id);
         Task<UserProfile> UpdateUserProfile(UserProfile existingUserProfile);
+        Task<decimal> GetCurrentStockPriceOfCompany(string symbol);
+        Task UpdateTransaction(UserTransaction transaction);
+        Task<List<UserProfile>> RetrieveAllUserProfiles();
     }
 }
