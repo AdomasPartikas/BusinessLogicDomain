@@ -15,7 +15,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173/") 
+            policy.WithOrigins("http://localhost:5173") 
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -82,10 +82,10 @@ RecurringJob.AddOrUpdate<ITransactionService>(
     service => service.CreateIndividualJobs(),
     "*/2 * * * *");
 
-app.UseRouting();
-app.UseHttpsRedirection();
-
 app.UseCors("AllowSpecificOrigin");
+
+app.UseRouting();
+//app.UseHttpsRedirection(); // Commented out to allow for HTTP requests since Frontend is not using HTTPS
 
 app.MapControllers();
 
