@@ -28,12 +28,13 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
-  <Target Name="NSwag" AfterTargets="PreBuildEvent">
+  <!-- Disabled due to running locally -->
+  <!-- <Target Name="NSwag" AfterTargets="PreBuildEvent">
     <Exec Command="mkdir APIClients" ContinueOnError="WarnAndContinue" />
     <Exec ConsoleToMSBuild="true" ContinueOnError="true" Command="$(NSwagExe_Net80) run nswag.json /variables:Url=/swagger/v1/swagger.json,ServiceHost=http://localhost:5251,Name=MarketDataDomainAPIClient,Namespace=MarketDataDomainClient">
       <Output TaskParameter="ExitCode" PropertyName="NSwagExitCode" />
       <Output TaskParameter="ConsoleOutput" PropertyName="NSwagOutput" /> 
     </Exec>
-  </Target>
+  </Target> -->
 
 </Project>
