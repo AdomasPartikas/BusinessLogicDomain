@@ -302,6 +302,8 @@ namespace BusinessLogicDomain.API.Controller
 
             existingUserProfile.UserTransactions.Add(userTransaction);
 
+            await _dbService.UpdateUserProfile(existingUserProfile);
+
             var executedResponse = await transactionService.ExecuteTransaction(existingUserProfile, userTransaction);
 
             return Ok(executedResponse);
@@ -344,9 +346,36 @@ namespace BusinessLogicDomain.API.Controller
 
             existingUserProfile.UserTransactions.Add(userTransaction);
 
+            await _dbService.UpdateUserProfile(existingUserProfile);
+
             var executedResponse = await transactionService.ExecuteTransaction(existingUserProfile, userTransaction);
 
             return Ok(executedResponse);
+        }
+
+        [HttpPost("canceltransaction")]
+        [ProducesResponseType(202, Type = typeof(Entities.UserTransaction))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> CancelTransaction([FromQuery] int userId, [FromBody] int transactionId)
+        {
+            var existingUser = await _dbService.RetrieveUser(userId);
+
+            if (existingUser == null)
+                return BadRequest("User does not exist");
+
+            var existingUserProfile = await _dbService.RetrieveUserProfile(userId);
+
+            if (existingUserProfile == null)
+                return BadRequest("User profile does not exist");
+
+            var existingTransaction = await _dbService.RetrieveUserTransaction(transactionId);
+
+            if (existingTransaction == null)
+                return BadRequest("User transaction does not exist");
+
+            var executedResponse = await transactionService.CancelTransaction(existingTransaction);
+
+            return Accepted(executedResponse);
         }
     }
 }

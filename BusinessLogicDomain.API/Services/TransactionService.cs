@@ -146,8 +146,19 @@ namespace BusinessLogicDomain.API.Services
             return true;
         }
 
+        public async Task<UserTransaction> CancelTransaction(UserTransaction transaction)
+        {
+            if(transaction.TransactionStatus == TransactionStatus.OnHold)
+                transaction.TransactionStatus = TransactionStatus.Cancelled;
+
+            await _dbService.UpdateTransaction(transaction);
+
+            return transaction;
+        }
+
         public async Task CreateIndividualJobs()
         {
+            //TODO: Execute transactions by order date 
             var userProfiles = await _dbService.RetrieveAllUserProfiles();
 
             foreach (var userProfile in userProfiles)
