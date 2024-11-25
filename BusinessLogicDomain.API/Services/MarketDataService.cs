@@ -4,9 +4,9 @@ using OfficeOpenXml;
 
 namespace BusinessLogicDomain.API.Services
 {
-    public class MarketDataService(MarketDataDomainClient marketDataClient, IDbService dbService) : IMarketDataService
+    public class MarketDataService(IMarketDataDomainClient marketDataClient, IDbService dbService) : IMarketDataService
     {
-        private readonly MarketDataDomainClient _marketDataClient = marketDataClient;
+        private readonly IMarketDataDomainClient _marketDataClient = marketDataClient;
         private readonly IDbService _dbService = dbService;
         public async Task RetrieveAndSaveMarketData()
         {

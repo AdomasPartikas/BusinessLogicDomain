@@ -9,5 +9,6 @@ namespace BusinessLogicDomain.API.Services
     {
         Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction);
         Task CreateIndividualJobs();
+        Task<UserTransaction> CancelTransaction(UserTransaction transaction);
     }
 }

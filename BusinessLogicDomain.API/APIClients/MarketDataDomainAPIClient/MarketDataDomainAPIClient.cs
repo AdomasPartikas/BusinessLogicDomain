@@ -23,7 +23,39 @@ namespace BusinessLogicDomain.MarketDataDomainAPIClient
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class MarketDataDomainClient 
+    public partial interface IMarketDataDomainClient
+    {
+        /// <returns>OK</returns>
+        /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<MarketDataDto>> MarketdataAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<MarketDataDto>> MarketdataAsync(System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<StockSymbolDto>> StocksymbolsAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<System.Collections.Generic.ICollection<StockSymbolDto>> StocksymbolsAsync(System.Threading.CancellationToken cancellationToken);
+
+        /// <returns>OK</returns>
+        /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<MarketStatusDto> MarketstatusAsync();
+
+        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+        /// <returns>OK</returns>
+        /// <exception cref="MarketDataDomainAPIClientException">A server side error occurred.</exception>
+        System.Threading.Tasks.Task<MarketStatusDto> MarketstatusAsync(System.Threading.CancellationToken cancellationToken);
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NSwag", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class MarketDataDomainClient : IMarketDataDomainClient
     {
         #pragma warning disable 8618
         private string _baseUrl;

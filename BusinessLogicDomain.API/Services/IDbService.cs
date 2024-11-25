@@ -26,5 +26,6 @@ namespace BusinessLogicDomain.API.Services
         Task<decimal> GetCurrentStockPriceOfCompany(string symbol);
         Task UpdateTransaction(UserTransaction transaction);
         Task<List<UserProfile>> RetrieveAllUserProfiles();
+        Task<UserTransaction> RetrieveUserTransaction(int id);
     }
 }

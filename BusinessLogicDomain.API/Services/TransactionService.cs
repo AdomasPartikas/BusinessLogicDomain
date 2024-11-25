@@ -5,9 +5,9 @@ using Hangfire;
 
 namespace BusinessLogicDomain.API.Services
 {
-    public class TransactionService(MarketDataDomainClient marketDataClient, IDbService dbService) : ITransactionService
+    public class TransactionService(IMarketDataDomainClient marketDataClient, IDbService dbService) : ITransactionService
     {
-        private readonly MarketDataDomainClient _marketDataClient = marketDataClient;
+        private readonly IMarketDataDomainClient _marketDataClient = marketDataClient;
         private readonly IDbService _dbService = dbService;
 
         public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction)
@@ -146,8 +146,19 @@ namespace BusinessLogicDomain.API.Services
             return true;
         }
 
+        public async Task<UserTransaction> CancelTransaction(UserTransaction transaction)
+        {
+            if(transaction.TransactionStatus == TransactionStatus.OnHold)
+                transaction.TransactionStatus = TransactionStatus.Cancelled;
+
+            await _dbService.UpdateTransaction(transaction);
+
+            return transaction;
+        }
+
         public async Task CreateIndividualJobs()
         {
+            //TODO: Execute transactions by order date 
             var userProfiles = await _dbService.RetrieveAllUserProfiles();
 
             foreach (var userProfile in userProfiles)

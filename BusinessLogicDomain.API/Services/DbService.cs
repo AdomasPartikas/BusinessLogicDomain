@@ -249,5 +249,12 @@ namespace BusinessLogicDomain.API.Services
             return userProfiles;
         }
 
+        public async Task<UserTransaction> RetrieveUserTransaction(int id)
+        {
+            var existingTransaction = await _context.UserTransactions.FirstOrDefaultAsync(t => t.ID == id);
+
+            return existingTransaction;
+        }
+
     }
 }

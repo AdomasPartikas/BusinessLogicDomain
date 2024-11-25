@@ -1,0 +1,63 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main", "Feature/*", "Update/*" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest  # Using Ubuntu for cross-platform support
+
+    steps:
+    # Checkout the code
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Setup .NET
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x  # Adjust the version as needed
+
+    # Install Dependencies
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # Build the solution
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    # Run Unit Tests
+    - name: Run Unit Tests
+      run: dotnet test Tests/BusinessLayer.Unit --configuration Release --no-build --collect:"XPlat Code Coverage"
+      env:
+        DOTNET_CLI_HOME: ${{ runner.temp }}  # Ensures proper temp directory access for code coverage collection
+
+    # Run Integration Tests
+    - name: Run Integration Tests
+      run: dotnet test Tests/BusinessLayer.Integration --configuration Release --no-build --collect:"XPlat Code Coverage"
+
+    # Publish Test Results
+    - name: Publish Test Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: '**/TestResults/*.trx'
+
+    # Generate and Upload Coverage Report (optional)
+    - name: Generate Coverage Report
+      uses: danielpalme/ReportGenerator-GitHub-Action@v5
+      with:
+        reports: '**/coverage.cobertura.xml'  # Matches the coverage file generated during tests
+        targetdir: './coverage-report'
+        reporttypes: 'HtmlInline_AzurePipelines;Cobertura'
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: ./coverage-report
