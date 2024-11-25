@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
 
-builder.Services.AddHttpClient<MarketDataDomainClient>();
+builder.Services.AddHttpClient<IMarketDataDomainClient, MarketDataDomainClient>();
 builder.Services.AddScoped<IMarketDataService, MarketDataService>();
 builder.Services.AddScoped<IDbService, DbService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();

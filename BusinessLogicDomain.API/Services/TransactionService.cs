@@ -5,9 +5,9 @@ using Hangfire;
 
 namespace BusinessLogicDomain.API.Services
 {
-    public class TransactionService(MarketDataDomainClient marketDataClient, IDbService dbService) : ITransactionService
+    public class TransactionService(IMarketDataDomainClient marketDataClient, IDbService dbService) : ITransactionService
     {
-        private readonly MarketDataDomainClient _marketDataClient = marketDataClient;
+        private readonly IMarketDataDomainClient _marketDataClient = marketDataClient;
         private readonly IDbService _dbService = dbService;
 
         public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction)

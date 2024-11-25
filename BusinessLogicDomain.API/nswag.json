@@ -9,7 +9,7 @@
     "codeGenerators": {
       "openApiToCSharpClient": {
         "generateClientClasses": true,
-        "generateClientInterfaces": false,
+        "generateClientInterfaces": true,
         "injectHttpClient": true,
         "disposeHttpClient": true,
         "generateExceptionClasses": true,
