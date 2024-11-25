@@ -50,7 +50,7 @@ jobs:
 
     # Generate and Upload Coverage Report (optional)
     - name: Generate Coverage Report
-      uses: danielpalme/ReportGenerator-GitHub-Action@v6
+      uses: danielpalme/ReportGenerator-GitHub-Action@v5
       with:
         reports: '**/coverage.cobertura.xml'  # Matches the coverage file generated during tests
         targetdir: './coverage-report'
