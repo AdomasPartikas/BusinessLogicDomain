@@ -46,7 +46,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: test-results
-        path: **/TestResults/*.trx
+        path: '**/TestResults/*.trx'
 
     # Generate and Upload Coverage Report (optional)
     - name: Generate Coverage Report
