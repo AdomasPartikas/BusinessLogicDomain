@@ -33,13 +33,13 @@ jobs:
 
     # Run Unit Tests
     - name: Run Unit Tests
-      run: dotnet test Tests/BusinessLayer.Unit --no-build --collect:"XPlat Code Coverage"
+      run: dotnet test Tests/BusinessLayer.Unit --configuration Release --no-build --collect:"XPlat Code Coverage"
       env:
         DOTNET_CLI_HOME: ${{ runner.temp }}  # Ensures proper temp directory access for code coverage collection
 
     # Run Integration Tests
     - name: Run Integration Tests
-      run: dotnet test Tests/BusinessLayer.Integration --no-build --collect:"XPlat Code Coverage"
+      run: dotnet test Tests/BusinessLayer.Integration --configuration Release --no-build --collect:"XPlat Code Coverage"
 
     # Publish Test Results
     - name: Publish Test Results
