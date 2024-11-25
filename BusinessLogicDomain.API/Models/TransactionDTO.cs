@@ -6,12 +6,14 @@ namespace BusinessLogicDomain.API.Models
     {
         public required string Symbol { get; set; }
         public required decimal Value { get; set; }
+        public decimal DeviatedPrice { get; set; }
     }
 
     public class SellStockDTO
     {
         public required string Symbol { get; set; }
         public required decimal Value { get; set; }
+        public decimal DeviatedPrice { get; set; }
     }
 
     public class TransactionDTO

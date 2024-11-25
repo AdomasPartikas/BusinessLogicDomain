@@ -283,7 +283,13 @@ namespace BusinessLogicDomain.API.Controller
             if (company == null)
                 return BadRequest("Company does not exist");
 
-            var currentStockPrice = await _dbService.GetCurrentStockPriceOfCompany(buyStock.Symbol);
+            decimal currentStockPrice = new decimal();
+
+            if(buyStock.DeviatedPrice > 0)
+                currentStockPrice = buyStock.DeviatedPrice;
+            else
+                currentStockPrice = await _dbService.GetCurrentStockPriceOfCompany(buyStock.Symbol);
+
             var stockAmount = buyStock.Value / currentStockPrice;
 
             if (existingUserProfile.Balance < buyStock.Value)
@@ -330,7 +336,13 @@ namespace BusinessLogicDomain.API.Controller
             if (company == null)
                 return BadRequest("Company does not exist");
 
-            var currentStockPrice = await _dbService.GetCurrentStockPriceOfCompany(sellStock.Symbol);
+            decimal currentStockPrice = new decimal();
+
+            if(sellStock.DeviatedPrice > 0)
+                currentStockPrice = sellStock.DeviatedPrice;
+            else
+                currentStockPrice = await _dbService.GetCurrentStockPriceOfCompany(sellStock.Symbol);
+
             var stockAmount = sellStock.Value / currentStockPrice;
 
             var userTransaction = new Entities.UserTransaction
