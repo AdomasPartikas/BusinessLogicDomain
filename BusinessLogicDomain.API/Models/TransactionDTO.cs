@@ -16,6 +16,11 @@ namespace BusinessLogicDomain.API.Models
         public decimal DeviatedPrice { get; set; }
     }
 
+    public class CancelTransactionDTO
+    {
+        public required int TransactionID { get; set; }
+    }
+
     public class TransactionDTO
     {
         public required TransactionType TransactionType { get; set; }

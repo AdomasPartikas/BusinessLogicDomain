@@ -28,13 +28,6 @@ namespace BusinessLogicDomain.API.Services
             await _dbService.InitializeCompanies(stockSymbols);
         }
 
-        private async Task UpdateTablesForMarketClosure()
-        {
-            await RetrieveAndSaveMarketData();
-
-            await _dbService.UpdatePriceHistory();
-        }
-
         public async Task RefreshMarketData()
         {
             var marketStatus = await _marketDataClient.MarketstatusAsync();
@@ -48,7 +41,7 @@ namespace BusinessLogicDomain.API.Services
             if(marketStatus.IsOpen)
                 await RetrieveAndSaveMarketData();
             else
-                await UpdateTablesForMarketClosure();
+                await _dbService.UpdatePriceHistory();
         }
     }
 }
