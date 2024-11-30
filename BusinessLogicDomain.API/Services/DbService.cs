@@ -71,15 +71,48 @@ namespace BusinessLogicDomain.API.Services
 
             var priceHistories = livePriceDailies.Select(data => _mapper.Map<PriceHistory>(data)).ToList();
 
+            foreach (var priceHistory in priceHistories.ToList())
+            {
+                if (!await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDTO>(priceHistory)))
+                    priceHistories.Remove(priceHistory);
+            }
+
             await _context.PriceHistories.AddRangeAsync(priceHistories);
             await _context.SaveChangesAsync();
+
+            //await RemovePriceHistoryDuplicates(); //Uncomment to remove duplicates (for testing purposes)
 
             await ClearLivePriceDaily();
         }
 
+        private async Task<bool> IsPriceHistoryDistinct(PriceHistoryDTO priceHistory)
+        {
+            var existingPriceHistory = await _context.PriceHistories
+                .FirstOrDefaultAsync(ph => ph.Company.ID == priceHistory.CompanySymbol && ph.Date == priceHistory.Date && ph.EODPrice == priceHistory.EODPrice);
+
+            return existingPriceHistory == null;
+        }
+
+        private async Task RemovePriceHistoryDuplicates()
+        {
+            var duplicateGroups = _context.PriceHistories
+                .AsEnumerable()
+                .GroupBy(ph => new { ph.Date, ph.EODPrice, ph.Company.ID })
+                .Where(g => g.Count() > 1)
+                .ToList();
+
+            foreach (var group in duplicateGroups)
+            {
+                var duplicates = group.Skip(1).ToList();
+                _context.PriceHistories.RemoveRange(duplicates);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         private async Task ClearLivePriceDaily()
         {
-            _context.LivePriceDaily.RemoveRange(_context.LivePriceDaily);
+            await _context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE LivePriceDaily");
             await _context.SaveChangesAsync();
         }
 
