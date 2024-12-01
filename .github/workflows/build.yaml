@@ -36,14 +36,8 @@ jobs:
       - name: Run Tests with Coverage
         run: |
           dotnet test --no-build --configuration Release \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=opencover \
-            /p:CoverletOutput=./TestResults/
-        env:
-          PATH: ${{ runner.tool_cache }}/dotnet/tools:$PATH
-
-      - name: Check Generated Files
-        run: find ./TestResults -type f
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults/
 
       - name: Cache SonarQube Cloud scanner
         id: cache-sonar-scanner
@@ -69,6 +63,6 @@ jobs:
             /o:"adomaspartikas" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
+            /d:sonar.cs.opencover.reportsPaths=./TestResults/**/coverage.cobertura.xml
           dotnet build --no-incremental
           dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
