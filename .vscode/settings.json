@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "adomaspartikas",
+        "projectKey": "AdomasPartikas_BusinessLogicDomain"
+    }
+}
