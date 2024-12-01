@@ -30,6 +30,9 @@ jobs:
       - name: Install Coverlet
         run: dotnet tool install --global coverlet.console
 
+      - name: Install dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
       - name: Run Tests with Coverage
         run: |
           dotnet test --no-build --configuration Release \
