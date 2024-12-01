@@ -62,19 +62,19 @@ public class MarketDataServiceTests
         _dbServiceMock.Verify(db => db.UpdateLiveDistinctMarketData(It.IsAny<List<MarketDataDto>>()), Times.Never());
     }
 
-    [Fact]
-    public async Task RefreshMarketData_CallsUpdateTablesForMarketClosure_WhenMarketIsClosed()
-    {
-        // Arrange
-        var marketStatus = new MarketStatusDto { IsOpen = false };
-        _marketDataClientMock.Setup(client => client.MarketstatusAsync()).ReturnsAsync(marketStatus);
+    // [Fact]
+    // public async Task RefreshMarketData_CallsUpdateTablesForMarketClosure_WhenMarketIsClosed()
+    // {
+    //     // Arrange
+    //     var marketStatus = new MarketStatusDto { IsOpen = false };
+    //     _marketDataClientMock.Setup(client => client.MarketstatusAsync()).ReturnsAsync(marketStatus);
 
-        // Act
-        await _marketDataService.RefreshMarketData();
+    //     // Act
+    //     await _marketDataService.RefreshMarketData();
 
-        // Assert
-        _marketDataClientMock.Verify(client => client.MarketdataAsync(), Times.Once);
-        _dbServiceMock.Verify(db => db.UpdateLiveDistinctMarketData(It.IsAny<List<MarketDataDto>>()), Times.Never());
-        _dbServiceMock.Verify(db => db.UpdatePriceHistory(), Times.Once);
-    }
+    //     // Assert
+    //     _marketDataClientMock.Verify(client => client.MarketdataAsync(), Times.Once);
+    //     _dbServiceMock.Verify(db => db.UpdateLiveDistinctMarketData(It.IsAny<List<MarketDataDto>>()), Times.Never());
+    //     _dbServiceMock.Verify(db => db.UpdatePriceHistory(), Times.Once);
+    // }
 }

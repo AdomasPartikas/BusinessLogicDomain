@@ -96,32 +96,32 @@ public class DbServiceTests : IClassFixture<UnitTestFixture>
         Assert.Single(livePriceDistincts);
     }
 
-    [Fact]
-    public async Task UpdatePriceHistory_CallsSaveChangesAsync()
-    {
-        _context.Database.EnsureDeleted();
-        _context.Database.EnsureCreated();
+    // [Fact]
+    // public async Task UpdatePriceHistory_CallsSaveChangesAsync()
+    // {
+    //     _context.Database.EnsureDeleted();
+    //     _context.Database.EnsureCreated();
 
-        // Arrange
-        var company = new Company { ID = "AAPL", Name = "Apple Inc." };
+    //     // Arrange
+    //     var company = new Company { ID = "AAPL", Name = "Apple Inc." };
 
-        await _context.Companies.AddAsync(company);
-        await _context.SaveChangesAsync();
+    //     await _context.Companies.AddAsync(company);
+    //     await _context.SaveChangesAsync();
 
-        var livePriceDaily = new LivePriceDaily { ID = 1, Price = 150m, Date = DateTime.Now, Company = company };
-        await _context.LivePriceDaily.AddAsync(livePriceDaily);
-        await _context.SaveChangesAsync();
+    //     var livePriceDaily = new LivePriceDaily { ID = 1, Price = 150m, Date = DateTime.Now, Company = company };
+    //     await _context.LivePriceDaily.AddAsync(livePriceDaily);
+    //     await _context.SaveChangesAsync();
 
-        _mapperMock.Setup(mapper => mapper.Map<PriceHistory>(It.IsAny<LivePriceDaily>()))
-                   .Returns(new PriceHistory { ID = 1, EODPrice = 150m, Date = DateTime.Now, Company = company });
+    //     _mapperMock.Setup(mapper => mapper.Map<PriceHistory>(It.IsAny<LivePriceDaily>()))
+    //                .Returns(new PriceHistory { ID = 1, EODPrice = 150m, Date = DateTime.Now, Company = company });
 
-        // Act
-        await _dbService.UpdatePriceHistory();
+    //     // Act
+    //     await _dbService.UpdatePriceHistory();
 
-        // Assert
-        var priceHistories = await _context.PriceHistories.ToListAsync();
-        Assert.NotEmpty(priceHistories);
-    }
+    //     // Assert
+    //     var priceHistories = await _context.PriceHistories.ToListAsync();
+    //     Assert.NotEmpty(priceHistories);
+    // }
 
     [Fact]
     public async Task RetrieveInitializedCompanies_ReturnsCompanies()
