@@ -1,0 +1,73 @@
+name: Build, Test, and Analyze
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-and-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Ensure the full history is available for SonarCloud analysis
+
+      # Setup .NET
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x  # Adjust the version as needed
+
+      # Restore Dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Build (Only once)
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # Run Unit Tests
+      - name: Run Unit Tests
+        run: dotnet test Tests/BusinessLayer.Unit --configuration Release --no-build --collect:"XPlat Code Coverage"
+        env:
+          DOTNET_CLI_HOME: ${{ runner.temp }}
+
+      # Run Integration Tests
+      - name: Run Integration Tests
+        run: dotnet test Tests/BusinessLayer.Integration --configuration Release --no-build --collect:"XPlat Code Coverage"
+
+      # Cache SonarCloud Scanner
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ./.sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      # Install SonarCloud Scanner (If Not Cached)
+      - name: Install SonarCloud Scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .sonar/scanner
+          dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
+
+      # SonarCloud Analysis
+      - name: SonarQube Analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./.sonar/scanner/dotnet-sonarscanner begin \
+            /k:"AdomasPartikas_BusinessLogicDomain" \
+            /o:"adomaspartikas" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths=**/coverage.cobertura.xml
+          dotnet build --no-incremental
+          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
