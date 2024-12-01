@@ -42,6 +42,9 @@ jobs:
         env:
           PATH: ${{ runner.tool_cache }}/dotnet/tools:$PATH
 
+      - name: Check Generated Files
+        run: find ./TestResults -type f
+
       - name: Cache SonarQube Cloud scanner
         id: cache-sonar-scanner
         uses: actions/cache@v4
