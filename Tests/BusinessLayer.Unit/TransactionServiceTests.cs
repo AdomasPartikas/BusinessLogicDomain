@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 
+namespace BusinessLogicDomain.Tests.Unit;
+
 public class TransactionServiceTests
 {
     private readonly Mock<IMarketDataDomainClient> _marketDataClientMock;

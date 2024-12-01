@@ -379,5 +379,49 @@ namespace BusinessLogicDomain.API.Controller
 
             return Accepted(executedResponse);
         }
+
+
+        ///<summary>
+        ///Resets the user profile by clearing all transactions and portfolio stocks and setting the balance to the specified difficulty level
+        ///id: The user id
+        ///difficulty: The difficulty level to set the balance to (easy, medium, hard)
+        ///</summary>
+        [HttpPost("resetprofile")]
+        [ProducesResponseType(200, Type = typeof(Entities.UserProfile))]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ResetProfile([FromQuery] int id, [FromQuery] string difficulty)
+        {
+            var existingUser = await _dbService.RetrieveUser(id);
+
+            if (existingUser == null)
+            return BadRequest("User does not exist");
+
+            var existingUserProfile = await _dbService.RetrieveUserProfile(id);
+
+            if (existingUserProfile == null)
+            return BadRequest("User profile does not exist");
+
+            existingUserProfile.UserTransactions.Clear();
+            existingUserProfile.UserPortfolioStocks.Clear();
+
+            switch (difficulty.ToLower())
+            {
+            case "easy":
+                existingUserProfile.Balance = 10000;
+                break;
+            case "medium":
+                existingUserProfile.Balance = 5000;
+                break;
+            case "hard":
+                existingUserProfile.Balance = 1000;
+                break;
+            default:
+                return BadRequest("Invalid difficulty level");
+            }
+
+            await _dbService.UpdateUserProfile(existingUserProfile);
+
+            return Ok(existingUserProfile);
+        }
     }
 }
