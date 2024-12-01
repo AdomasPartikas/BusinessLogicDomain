@@ -27,14 +27,17 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      - name: Run All Tests with Coverage
+      - name: Install Coverlet
+        run: dotnet tool install --global coverlet.console
+
+      - name: Run Tests with Coverage
         run: |
-          dotnet test --configuration Release --no-build \
+          dotnet test --no-build --configuration Release \
             /p:CollectCoverage=true \
-            /p:CoverletOutput=./TestResults/ \
-            /p:CoverletOutputFormat=opencover
+            /p:CoverletOutputFormat=opencover \
+            /p:CoverletOutput=./TestResults/
         env:
-          DOTNET_CLI_HOME: ${{ runner.temp }}
+          PATH: ${{ runner.tool_cache }}/dotnet/tools:$PATH
 
       - name: Cache SonarQube Cloud scanner
         id: cache-sonar-scanner
@@ -55,11 +58,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          ./.sonar/scanner/dotnet-sonarscanner begin \
+          dotnet sonarscanner begin \
             /k:"AdomasPartikas_BusinessLogicDomain" \
             /o:"adomaspartikas" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths=**/TestResults/coverage.opencover.xml
+            /d:sonar.cs.opencover.reportsPaths=./TestResults/coverage.opencover.xml
           dotnet build --no-incremental
-          ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
