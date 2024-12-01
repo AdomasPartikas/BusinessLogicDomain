@@ -11,48 +11,51 @@ jobs:
   build-and-analyze:
     runs-on: ubuntu-latest
     steps:
+      # Checkout the code
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  
+          fetch-depth: 0
 
+      # Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x 
+          dotnet-version: 8.0.x
 
+      # Restore Dependencies
       - name: Restore dependencies
         run: dotnet restore
 
+      # Build
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      # Install Coverlet Tool
       - name: Install Coverlet
         run: dotnet tool install --global coverlet.console
 
-      - name: Install dotnet-sonarscanner
-        run: dotnet tool install --global dotnet-sonarscanner
-
+      # Run Tests with Coverage
       - name: Run Tests with Coverage
         run: |
           dotnet test --no-build --configuration Release \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults/
 
-      - name: Cache SonarQube Cloud scanner
-        id: cache-sonar-scanner
-        uses: actions/cache@v4
-        with:
-          path: ./.sonar/scanner
-          key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
-
-      - name: Install SonarCloud Scanner
-        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      # Generate OpenCover Coverage Report with Coverlet
+      - name: Generate OpenCover Coverage Report
         run: |
-          mkdir -p .sonar/scanner
-          dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
+          coverlet ./Tests/BusinessLayer.Unit/bin/Release/net8.0/BusinessLayer.Unit.dll \
+            --target "dotnet" \
+            --targetargs "test --no-build --configuration Release" \
+            -f opencover \
+            -o coverage.opencover.xml
 
+      # Verify Coverage Report
+      - name: Verify Coverage Report
+        run: cat coverage.opencover.xml
+
+      # SonarCloud Analysis
       - name: SonarQube Analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,6 +66,6 @@ jobs:
             /o:"adomaspartikas" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths=./TestResults/**/coverage.cobertura.xml
+            /d:sonar.cs.opencover.reportsPaths=coverage.opencover.xml
           dotnet build --no-incremental
           dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
