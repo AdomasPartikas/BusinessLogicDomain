@@ -39,7 +39,7 @@ jobs:
 
       - name: Run Tests with Coverlet
         run: |
-          coverlet ./Tests/
+          coverlet ./Tests/BusinessLayer.Unit/bin/Release/net8.0/BusinessLayer.Unit.dll \
             --target "dotnet" \
             --targetargs "test --no-build --configuration Release" \
             -f opencover \
