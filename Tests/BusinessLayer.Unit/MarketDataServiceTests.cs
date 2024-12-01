@@ -6,6 +6,8 @@ using BusinessLogicDomain.MarketDataDomainAPIClient;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+namespace BusinessLogicDomain.Tests.Unit;
+
 public class MarketDataServiceTests
 {
     private readonly Mock<IMarketDataDomainClient> _marketDataClientMock;

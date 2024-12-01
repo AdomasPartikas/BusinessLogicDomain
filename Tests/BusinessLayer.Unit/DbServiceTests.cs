@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using BusinessLogicDomain.API.Entities.Enum;
 using BusinessLogicDomain.MarketDataDomainAPIClient;
 
+namespace BusinessLogicDomain.Tests.Unit;
+
 public class DbServiceTests : IClassFixture<UnitTestFixture>
 {
     private readonly UnitTestFixture _fixture;

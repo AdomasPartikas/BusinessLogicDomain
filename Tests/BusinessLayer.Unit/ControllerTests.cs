@@ -5,6 +5,9 @@ using Moq;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
+namespace BusinessLogicDomain.Tests.Unit;
+
+
 public class MarketDataControllerTests : IClassFixture<UnitTestFixture>
 {
     private readonly UnitTestFixture _fixture;
