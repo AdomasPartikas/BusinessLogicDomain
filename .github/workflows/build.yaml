@@ -31,31 +31,34 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
-      # Install Coverlet Tool
       - name: Install Coverlet
         run: dotnet tool install --global coverlet.console
 
-      # Run Tests with Coverage
-      - name: Run Tests with Coverage
-        run: |
-          dotnet test --no-build --configuration Release \
-            --collect:"XPlat Code Coverage" \
-            --results-directory ./TestResults/
+      - name: Install dotnet-sonarscanner
+        run: dotnet tool install --global dotnet-sonarscanner
 
-      # Generate OpenCover Coverage Report with Coverlet
-      - name: Generate OpenCover Coverage Report
+      - name: Run Tests with Coverlet
         run: |
-          coverlet ./Tests/BusinessLayer.Unit/bin/Release/net8.0/BusinessLayer.Unit.dll \
+          coverlet ./Tests/
             --target "dotnet" \
             --targetargs "test --no-build --configuration Release" \
             -f opencover \
             -o coverage.opencover.xml
 
-      # Verify Coverage Report
-      - name: Verify Coverage Report
-        run: cat coverage.opencover.xml
+      - name: Cache SonarQube Cloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v4
+        with:
+          path: ./.sonar/scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
 
-      # SonarCloud Analysis
+      - name: Install SonarCloud Scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p .sonar/scanner
+          dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
+
       - name: SonarQube Analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
