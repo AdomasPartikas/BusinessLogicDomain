@@ -10,7 +10,7 @@ namespace BusinessLogicDomain.API.Services
         private readonly IMarketDataDomainClient _marketDataClient = marketDataClient;
         private readonly IDbService _dbService = dbService;
 
-        public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction)
+        public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei
         {
             if(!ValidateTransaction(userProfile, transaction))
             {
@@ -111,35 +111,35 @@ namespace BusinessLogicDomain.API.Services
             await _dbService.UpdateUserProfile(userProfile);
         }
 
-        private bool ValidateTransaction(UserProfile userProfile, UserTransaction transaction)
+        private bool ValidateTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei
         {
-            if(userProfile == null)
+            if(userProfile == null) //1
                 return false;
 
-            if(transaction == null)
+            if(transaction == null) //2
                 return false;
 
-            if(transaction.Company == null)
+            if(transaction.Company == null) //3
                 return false;
 
-            if(transaction.Quantity <= 0)
+            if(transaction.Quantity <= 0) //4
                 return false;
 
-            if(transaction.TransactionValue <= 0)
+            if(transaction.TransactionValue <= 0) //5
                 return false;
 
-            if(transaction.StockValue <= 0)
+            if(transaction.StockValue <= 0) //6
                 return false;
 
-            if(transaction.TransactionType == TransactionType.Buy)
+            if(transaction.TransactionType == TransactionType.Buy) //7
             {
-                if(transaction.TransactionValue > userProfile.Balance)
+                if(transaction.TransactionValue > userProfile.Balance) //8
                     return false;
             }
-            else if(transaction.TransactionType == TransactionType.Sell)
+            else if(transaction.TransactionType == TransactionType.Sell) //9
             {
-                if(userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).Any() &&
-                    transaction.Quantity > userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).FirstOrDefault()!.Quantity)
+                if(userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).Any() && //10
+                    transaction.Quantity > userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).FirstOrDefault()!.Quantity) //11
                     return false;
             }
 
@@ -179,7 +179,7 @@ namespace BusinessLogicDomain.API.Services
             await _dbService.UpdateUserProfile(userProfile);
         }
 
-        private async Task RecalculatePortfolio(UserProfile userProfile)
+        private async Task RecalculatePortfolio(UserProfile userProfile) //Naudojamas Kokybei
         {
             foreach (var portfolioStock in userProfile.UserPortfolioStocks)
             {
