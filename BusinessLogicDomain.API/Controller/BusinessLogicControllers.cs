@@ -25,6 +25,7 @@ namespace BusinessLogicDomain.API.Controller
         [HttpGet("marketdata/getcompanylivepricedistinct")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Entities.LivePriceDistinct>))]
         [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
         public async Task<IActionResult> GetCompanyLivePriceDistinct([FromQuery] string symbols)
         {
             if (string.IsNullOrEmpty(symbols))
@@ -56,6 +57,9 @@ namespace BusinessLogicDomain.API.Controller
         [ProducesResponseType(204)]
         public async Task<IActionResult> GetCompanyLivePriceDaily([FromQuery] string symbol)
         {
+            if (string.IsNullOrEmpty(symbol))
+                return BadRequest("Symbol parameter is required.");
+
             var company = await dbService.RetrieveCompanyBySymbol(symbol);
 
             if (company == null)
@@ -74,6 +78,9 @@ namespace BusinessLogicDomain.API.Controller
         [ProducesResponseType(204)]
         public async Task<IActionResult> GetCompanyPriceHistory([FromQuery] string symbol, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
+            if (string.IsNullOrEmpty(symbol))
+                return BadRequest("Symbol parameter is required.");
+
             var company = await dbService.RetrieveCompanyBySymbol(symbol);
 
             if (company == null)
