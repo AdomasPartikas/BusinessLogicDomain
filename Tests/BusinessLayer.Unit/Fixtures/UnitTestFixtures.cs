@@ -19,6 +19,7 @@ namespace BusinessLogicDomain.Tests.Unit.Fixtures
 
         public static User UserMock => new()
         {
+            ID = 1,
             UserName = "testUser",
             Password = "testPassword",
             FirstName = "Test",
@@ -39,6 +40,15 @@ namespace BusinessLogicDomain.Tests.Unit.Fixtures
             LastName = "User",
             DateOfBirth = DateTime.Now.AddYears(-30),
             Email = "testuser@example.com"
+        };
+
+        public static UserProfile UserProfileMock => new()
+        {
+            User = UserMock,
+            Balance = 1000,
+            SimulationLevel = BusinessLogicDomain.API.Entities.Enum.SimulationLevel.Easy,
+            UserTransactions = new List<UserTransaction>(),
+            UserPortfolioStocks = new List<PortfolioStock>()
         };
     }
 }

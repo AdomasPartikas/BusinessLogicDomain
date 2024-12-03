@@ -528,7 +528,7 @@ public async Task Register_ReturnsOkResult()
         userInfo.Email = "test";
 
         var existingUserWithEmail = UnitTestFixture.UserMock;
-        
+
         _dbServiceMock.Setup(service => service.RetrieveUser(userId))
                       .ReturnsAsync(UnitTestFixture.UserMock);
         _dbServiceMock.Setup(service => service.RetrieveUserByEmail(userInfo.Email))
@@ -582,26 +582,240 @@ public class UserProfileControllerTests
     }
 
     [Fact]
-    public async Task GetUserProfile_ReturnsBadRequest_WhenUserDoesNotExist()
+    public async Task GetUserProfile_ReturnsBadRequest_UserDoesNotExist()
     {
+        // Arrange
+        _dbServiceMock.Setup(service => service.RetrieveUser(It.IsAny<int>()))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
         // Act
         var result = await _controller.GetUserProfile(1);
 
         // Assert
-        Assert.IsType<BadRequestObjectResult>(result);
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
     }
 
     [Fact]
-    public async Task Buy_ReturnsBadRequest_WhenUserDoesNotExist()
+    public async Task GetUserProfile_ReturnsOkResult_UserProfileIsFound()
     {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+        var userProfile = UnitTestFixture.UserProfileMock;
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync(userProfile);
+
         // Act
-        var result = await _controller.Buy(1, new BusinessLogicDomain.API.Models.BuyStockDTO
-        {
-            Symbol = "AAPL",
-            Value = 100
-        });
+        var result = await _controller.GetUserProfile(userId);
 
         // Assert
-        Assert.IsType<BadRequestObjectResult>(result);
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnProfile = Assert.IsType<BusinessLogicDomain.API.Entities.UserProfile>(okResult.Value);
+        Assert.Equal(userProfile.Balance, returnProfile.Balance);
+        Assert.Equal(userProfile.User.ID, returnProfile.User.ID);
+    }
+
+    [Fact]
+    public async Task UpdateUserProfileBalance_ReturnsBadRequest_UserDoesNotExist()
+    {
+        // Arrange
+        _dbServiceMock.Setup(service => service.RetrieveUser(It.IsAny<int>()))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
+        // Act
+        var result = await _controller.UpdateUserProfileBalance(1, 1000);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdateUserProfileBalance_ReturnsBadRequest_UserProfileDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.UserProfile?)null);
+
+        // Act
+        var result = await _controller.UpdateUserProfileBalance(userId, 1000);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User profile does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdateUserProfileBalance_ReturnsOkResult_BalanceIsUpdated()
+    {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+        var userProfile = UnitTestFixture.UserProfileMock;
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync(userProfile);
+
+        // Act
+        var result = await _controller.UpdateUserProfileBalance(userId, 2000);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnProfile = Assert.IsType<BusinessLogicDomain.API.Entities.UserProfile>(okResult.Value);
+        Assert.Equal(2000, returnProfile.Balance);
+    }
+
+    [Fact]
+    public async Task Buy_ReturnsBadRequest_UserDoesNotExist()
+    {
+        // Arrange
+        _dbServiceMock.Setup(service => service.RetrieveUser(It.IsAny<int>()))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
+        // Act
+        var result = await _controller.Buy(1, new BusinessLogicDomain.API.Models.BuyStockDTO(){Symbol = "test", Value = 10});
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task Buy_ReturnsBadRequest_UserProfileDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.UserProfile?)null);
+
+        // Act
+        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDTO(){Symbol = "test", Value = 10});
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User profile does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task Buy_ReturnsBadRequest_CompanyDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+        var userProfile = UnitTestFixture.UserProfileMock;
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync(userProfile);
+        _dbServiceMock.Setup(service => service.RetrieveCompanyBySymbol(It.IsAny<string>()))!
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.Company?)null);
+
+        // Act
+        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDTO { Symbol = "AAPL", Value = 100 });
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Company does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task Buy_ReturnsBadRequest_WhenBalanceIsInsufficient()
+    {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+        var userProfile = UnitTestFixture.UserProfileMock;
+        userProfile.Balance = 100; // Insufficient balance
+        var company = new BusinessLogicDomain.API.Entities.Company { ID = "AAPL", Name = "Apple Inc." };
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync(userProfile);
+        _dbServiceMock.Setup(service => service.RetrieveCompanyBySymbol(It.IsAny<string>()))
+                      .ReturnsAsync(company);
+        _dbServiceMock.Setup(service => service.GetCurrentStockPriceOfCompany(It.IsAny<string>()))
+                        .ReturnsAsync(200);
+
+        // Act
+        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDTO { Symbol = "AAPL", Value = 200 });
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Insufficient funds", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task Sell_ReturnsBadRequest_WhenUserDoesNotExist()
+    {
+        // Arrange
+        _dbServiceMock.Setup(service => service.RetrieveUser(It.IsAny<int>()))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
+        // Act
+        var result = await _controller.Sell(1, new BusinessLogicDomain.API.Models.SellStockDTO(){Symbol = "test", Value = 100});
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task Sell_ReturnsBadRequest_WhenUserProfileDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.UserProfile?)null);
+
+        // Act
+        var result = await _controller.Sell(userId, new BusinessLogicDomain.API.Models.SellStockDTO(){Symbol = "test", Value = 100});
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User profile does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task Sell_ReturnsBadRequest_WhenCompanyDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var user = UnitTestFixture.UserMock;
+        var userProfile = UnitTestFixture.UserProfileMock;
+
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(user);
+        _dbServiceMock.Setup(service => service.RetrieveUserProfile(userId))
+                      .ReturnsAsync(userProfile);
+        _dbServiceMock.Setup(service => service.RetrieveCompanyBySymbol(It.IsAny<string>()))!
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.Company?)null);
+
+        // Act
+        var result = await _controller.Sell(userId, new BusinessLogicDomain.API.Models.SellStockDTO { Symbol = "AAPL", Value = 100 });
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Company does not exist", badRequestResult.Value);
     }
 }
