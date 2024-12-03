@@ -196,23 +196,6 @@ namespace BusinessLogicDomain.API.Services
             return existingPriceHistory == null;
         }
 
-        private async Task RemovePriceHistoryDuplicates()
-        {
-            var duplicateGroups = _context.PriceHistories
-                .AsEnumerable()
-                .GroupBy(ph => new { ph.Date, ph.EODPrice, ph.Company.ID })
-                .Where(g => g.Count() > 1)
-                .ToList();
-
-            foreach (var group in duplicateGroups)
-            {
-                var duplicates = group.Skip(1).ToList();
-                _context.PriceHistories.RemoveRange(duplicates);
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
         private async Task ClearLivePriceDaily()
         {
             await _context.Database.ExecuteSqlRawAsync("TRUNCATE TABLE LivePriceDaily");
