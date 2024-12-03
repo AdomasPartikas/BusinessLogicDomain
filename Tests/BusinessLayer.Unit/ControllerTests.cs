@@ -684,7 +684,7 @@ public class UserProfileControllerTests
                       .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
 
         // Act
-        var result = await _controller.Buy(1, new BusinessLogicDomain.API.Models.BuyStockDTO(){Symbol = "test", Value = 10});
+        var result = await _controller.Buy(1, new BusinessLogicDomain.API.Models.BuyStockDto(){Symbol = "test", Value = 10});
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -704,7 +704,7 @@ public class UserProfileControllerTests
                       .ReturnsAsync((BusinessLogicDomain.API.Entities.UserProfile?)null);
 
         // Act
-        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDTO(){Symbol = "test", Value = 10});
+        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDto(){Symbol = "test", Value = 10});
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -727,7 +727,7 @@ public class UserProfileControllerTests
                       .ReturnsAsync((BusinessLogicDomain.API.Entities.Company?)null);
 
         // Act
-        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDTO { Symbol = "AAPL", Value = 100 });
+        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDto { Symbol = "AAPL", Value = 100 });
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -754,7 +754,7 @@ public class UserProfileControllerTests
                         .ReturnsAsync(200);
 
         // Act
-        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDTO { Symbol = "AAPL", Value = 200 });
+        var result = await _controller.Buy(userId, new BusinessLogicDomain.API.Models.BuyStockDto { Symbol = "AAPL", Value = 200 });
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -769,7 +769,7 @@ public class UserProfileControllerTests
                       .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
 
         // Act
-        var result = await _controller.Sell(1, new BusinessLogicDomain.API.Models.SellStockDTO(){Symbol = "test", Value = 100});
+        var result = await _controller.Sell(1, new BusinessLogicDomain.API.Models.SellStockDto(){Symbol = "test", Value = 100});
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -789,7 +789,7 @@ public class UserProfileControllerTests
                       .ReturnsAsync((BusinessLogicDomain.API.Entities.UserProfile?)null);
 
         // Act
-        var result = await _controller.Sell(userId, new BusinessLogicDomain.API.Models.SellStockDTO(){Symbol = "test", Value = 100});
+        var result = await _controller.Sell(userId, new BusinessLogicDomain.API.Models.SellStockDto(){Symbol = "test", Value = 100});
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -812,7 +812,7 @@ public class UserProfileControllerTests
                       .ReturnsAsync((BusinessLogicDomain.API.Entities.Company?)null);
 
         // Act
-        var result = await _controller.Sell(userId, new BusinessLogicDomain.API.Models.SellStockDTO { Symbol = "AAPL", Value = 100 });
+        var result = await _controller.Sell(userId, new BusinessLogicDomain.API.Models.SellStockDto { Symbol = "AAPL", Value = 100 });
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
