@@ -1,6 +1,6 @@
 namespace BusinessLogicDomain.API.Models
 {
-    public class UserProfileDTO
+    public class UserProfileDto
     {
         public required decimal Balance { get; set; }
     }

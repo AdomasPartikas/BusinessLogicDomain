@@ -274,7 +274,7 @@ namespace BusinessLogicDomain.API.Services
             return userProfile;
         }
 
-        public async Task<User> CreateUser(UserRegisterDTO newUser)
+        public async Task<User> CreateUser(UserRegisterDto newUser)
         {
             var user = new User
             {

@@ -2,26 +2,26 @@ using BusinessLogicDomain.API.Entities.Enum;
 
 namespace BusinessLogicDomain.API.Models
 {
-    public class BuyStockDTO
+    public class BuyStockDto
     {
         public required string Symbol { get; set; }
         public required decimal Value { get; set; }
         public decimal DeviatedPrice { get; set; }
     }
 
-    public class SellStockDTO
+    public class SellStockDto
     {
         public required string Symbol { get; set; }
         public required decimal Value { get; set; }
         public decimal DeviatedPrice { get; set; }
     }
 
-    public class CancelTransactionDTO
+    public class CancelTransactionDto
     {
         public required int TransactionID { get; set; }
     }
 
-    public class TransactionDTO
+    public class TransactionDto
     {
         public required TransactionType TransactionType { get; set; }
         public required TransactionStatus TransactionStatus { get; set; }

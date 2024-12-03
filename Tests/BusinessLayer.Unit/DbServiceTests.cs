@@ -258,7 +258,7 @@ public class DbServiceTests
         _context.Database.EnsureCreated();
 
         // Arrange
-        var newUser = new UserRegisterDTO
+        var newUser = new UserRegisterDto
         {
             UserName = "testuser",
             Password = "password",

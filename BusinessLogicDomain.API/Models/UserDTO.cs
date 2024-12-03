@@ -2,7 +2,7 @@ using BusinessLogicDomain.API.Entities.Enum;
 
 namespace BusinessLogicDomain.API.Models
 {
-    public class UserRegisterDTO
+    public class UserRegisterDto
     {
         public required string UserName { get; set; }
         public required string Password { get; set; }
@@ -14,13 +14,13 @@ namespace BusinessLogicDomain.API.Models
         public required SimulationLevel SimulationLevel { get; set; }
     }
 
-    public class UserLoginDTO
+    public class UserLoginDto
     {
         public required string UserName { get; set; }
         public required string Password { get; set; }
     }
 
-    public class UserInfoDTO
+    public class UserInfoDto
     {
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
