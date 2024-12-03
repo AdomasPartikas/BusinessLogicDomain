@@ -1,6 +1,6 @@
 namespace BusinessLogicDomain.API.Models
 {
-    public class PriceHistoryDTO
+    public class PriceHistoryDto
     {
         public required string CompanySymbol { get; set; }
         public required decimal EODPrice { get; set; }
