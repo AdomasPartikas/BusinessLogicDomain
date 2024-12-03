@@ -595,7 +595,7 @@ public class UserProfileControllerTests
     public async Task Buy_ReturnsBadRequest_WhenUserDoesNotExist()
     {
         // Act
-        var result = await _controller.Buy(1, new BusinessLogicDomain.API.Models.BuyStockDTO
+        var result = await _controller.Buy(1, new BusinessLogicDomain.API.Models.BuyStockDto
         {
             Symbol = "AAPL",
             Value = 100

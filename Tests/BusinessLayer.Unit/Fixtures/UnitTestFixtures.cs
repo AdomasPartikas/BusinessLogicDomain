@@ -5,7 +5,7 @@ namespace BusinessLogicDomain.Tests.Unit.Fixtures
 {
     public static class UnitTestFixture
     {
-        public static UserRegisterDTO UserRegisterDTOMock => new()
+        public static UserRegisterDto UserRegisterDTOMock => new()
         {
             UserName = "testUser",
             Password = "testPassword",
@@ -27,13 +27,13 @@ namespace BusinessLogicDomain.Tests.Unit.Fixtures
             Email = "testuser@example.com"
         };
 
-        public static UserLoginDTO UserLoginDTOMock => new()
+        public static UserLoginDto UserLoginDTOMock => new()
         {
             UserName = "testUser",
             Password = "testPassword"
         };
 
-        public static UserInfoDTO UserInfoDTOMock => new()
+        public static UserInfoDto UserInfoDTOMock => new()
         {
             FirstName = "Test",
             LastName = "User",

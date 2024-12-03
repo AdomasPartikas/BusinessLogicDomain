@@ -105,7 +105,7 @@ namespace BusinessLogicDomain.API.Controller
         [HttpPost("register")]
         [ProducesResponseType(200, Type = typeof(Entities.User))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Register([FromBody] Models.UserRegisterDTO newUser)
+        public async Task<IActionResult> Register([FromBody] Models.UserRegisterDto newUser)
         {
             var existingUser = await _dbService.RetrieveUserByUsername(newUser.UserName);
 
@@ -125,7 +125,7 @@ namespace BusinessLogicDomain.API.Controller
         [HttpPost("login")]
         [ProducesResponseType(200, Type = typeof(Entities.User))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Login([FromBody] Models.UserLoginDTO userLogin)
+        public async Task<IActionResult> Login([FromBody] Models.UserLoginDto userLogin)
         {
             var existingUser = await _dbService.RetrieveUserByUsername(userLogin.UserName);
 
@@ -193,7 +193,7 @@ namespace BusinessLogicDomain.API.Controller
         [HttpPost("updateuserinfo")]
         [ProducesResponseType(200, Type = typeof(Entities.User))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> UpdateUserInfo([FromQuery] int id, [FromBody] Models.UserInfoDTO updatedUserInfo)
+        public async Task<IActionResult> UpdateUserInfo([FromQuery] int id, [FromBody] Models.UserInfoDto updatedUserInfo)
         {
             var existingUser = await _dbService.RetrieveUser(id);
 
@@ -273,7 +273,7 @@ namespace BusinessLogicDomain.API.Controller
         [HttpPost("buy")]
         [ProducesResponseType(204, Type = typeof(Entities.UserTransaction))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Buy([FromQuery] int id, [FromBody] Models.BuyStockDTO buyStock)
+        public async Task<IActionResult> Buy([FromQuery] int id, [FromBody] Models.BuyStockDto buyStock)
         {
             var existingUser = await _dbService.RetrieveUser(id);
 
@@ -326,7 +326,7 @@ namespace BusinessLogicDomain.API.Controller
         [HttpPost("sell")]
         [ProducesResponseType(204, Type = typeof(Entities.UserTransaction))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Sell([FromQuery] int id, [FromBody] Models.SellStockDTO sellStock)
+        public async Task<IActionResult> Sell([FromQuery] int id, [FromBody] Models.SellStockDto sellStock)
         {
             var existingUser = await _dbService.RetrieveUser(id);
 
@@ -375,7 +375,7 @@ namespace BusinessLogicDomain.API.Controller
         [HttpPost("canceltransaction")]
         [ProducesResponseType(202, Type = typeof(Entities.UserTransaction))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CancelTransaction([FromBody] Models.CancelTransactionDTO cancelTransaction)
+        public async Task<IActionResult> CancelTransaction([FromBody] Models.CancelTransactionDto cancelTransaction)
         {
             var existingTransaction = await _dbService.RetrieveUserTransaction(cancelTransaction.TransactionID);
 

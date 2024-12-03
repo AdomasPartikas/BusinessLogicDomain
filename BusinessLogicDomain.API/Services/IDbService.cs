@@ -18,7 +18,7 @@ namespace BusinessLogicDomain.API.Services
         Task<User?> RetrieveUser(int id);
         Task<User?> RetrieveUserByUsername(string username);
         Task<User?> RetrieveUserByEmail(string email);
-        Task<User> CreateUser(UserRegisterDTO newUser);
+        Task<User> CreateUser(UserRegisterDto newUser);
         Task<UserProfile> CreateUserProfile(User newUser, decimal balance, SimulationLevel simulationLevel);
         Task UpdateUser(User user);
         Task<UserProfile?> RetrieveUserProfile(int id);
