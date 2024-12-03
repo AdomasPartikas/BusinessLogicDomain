@@ -368,6 +368,204 @@ public async Task Register_ReturnsOkResult()
         Assert.Equal(existingUser.ID, returnUser.ID);
         Assert.Equal(existingUser.UserName, returnUser.UserName);
     }
+
+    [Fact]
+    public async Task GetUser_ReturnsBadRequest_UserDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
+        // Act
+        var result = await _controller.GetUser(userId);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task GetUser_ReturnsOkResult_UserIsFound()
+    {
+        // Arrange
+        var userId = 1;
+        var existingUser = UnitTestFixture.UserMock;
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(existingUser);
+
+        // Act
+        var result = await _controller.GetUser(userId);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnUser = Assert.IsType<BusinessLogicDomain.API.Entities.User>(okResult.Value);
+        Assert.Equal(existingUser.ID, returnUser.ID);
+        Assert.Equal(existingUser.UserName, returnUser.UserName);
+    }
+
+    [Fact]
+    public async Task UpdateUsername_ReturnsBadRequest_UserDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var newUsername = "newUsername";
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
+        // Act
+        var result = await _controller.UpdateUsername(userId, newUsername);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdateUsername_ReturnsBadRequest_UsernameAlreadyExists()
+    {
+        // Arrange
+        var userId = 1;
+        var newUsername = "newUsername";
+        var existingUserWithUsername = UnitTestFixture.UserMock;
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(UnitTestFixture.UserMock);
+        _dbServiceMock.Setup(service => service.RetrieveUserByUsername(newUsername))
+                      .ReturnsAsync(existingUserWithUsername);
+
+        // Act
+        var result = await _controller.UpdateUsername(userId, newUsername);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Username already exists", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdateUsername_ReturnsOkResult_UsernameIsUpdatedSuccessfully()
+    {
+        // Arrange
+        var userId = 1;
+        var newUsername = "newUsername";
+        var existingUser = UnitTestFixture.UserMock;
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(existingUser);
+        _dbServiceMock.Setup(service => service.RetrieveUserByUsername(newUsername))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+        _dbServiceMock.Setup(service => service.UpdateUser(existingUser))
+                      .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.UpdateUsername(userId, newUsername);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnUser = Assert.IsType<BusinessLogicDomain.API.Entities.User>(okResult.Value);
+        Assert.Equal(newUsername, returnUser.UserName);
+    }
+
+    [Fact]
+    public async Task UpdatePassword_ReturnsBadRequest_UserDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var newPassword = "newPassword";
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
+        // Act
+        var result = await _controller.UpdatePassword(userId, newPassword);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdatePassword_ReturnsOkResult_PasswordIsUpdatedSuccessfully()
+    {
+        // Arrange
+        var userId = 1;
+        var newPassword = "newPassword";
+        var existingUser = UnitTestFixture.UserMock;
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(existingUser);
+        _dbServiceMock.Setup(service => service.UpdateUser(existingUser))
+                      .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.UpdatePassword(userId, newPassword);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnUser = Assert.IsType<BusinessLogicDomain.API.Entities.User>(okResult.Value);
+        Assert.Equal(newPassword, returnUser.Password);
+    }
+
+    [Fact]
+    public async Task UpdateUserInfo_ReturnsBadRequest_UserDoesNotExist()
+    {
+        // Arrange
+        var userId = 1;
+        var userInfo = UnitTestFixture.UserInfoDTOMock;
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+
+        // Act
+        var result = await _controller.UpdateUserInfo(userId, userInfo);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("User does not exist", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdateUserInfo_ReturnsBadRequest_EmailAlreadyExists()
+    {
+        // Arrange
+        var userId = 1;
+        var userInfo = UnitTestFixture.UserInfoDTOMock;
+        userInfo.Email = "test";
+
+        var existingUserWithEmail = UnitTestFixture.UserMock;
+        
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(UnitTestFixture.UserMock);
+        _dbServiceMock.Setup(service => service.RetrieveUserByEmail(userInfo.Email))
+                      .ReturnsAsync(existingUserWithEmail);
+
+        // Act
+        var result = await _controller.UpdateUserInfo(userId, userInfo);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        Assert.Equal("Email already exists", badRequestResult.Value);
+    }
+
+    [Fact]
+    public async Task UpdateUserInfo_ReturnsOkResult_WhenUserInfoIsUpdatedSuccessfully()
+    {
+        // Arrange
+        var userId = 1;
+        var userInfo = UnitTestFixture.UserInfoDTOMock;
+        var existingUser = UnitTestFixture.UserMock;
+        _dbServiceMock.Setup(service => service.RetrieveUser(userId))
+                      .ReturnsAsync(existingUser);
+        _dbServiceMock.Setup(service => service.RetrieveUserByEmail(userInfo.Email))
+                      .ReturnsAsync((BusinessLogicDomain.API.Entities.User?)null);
+        _dbServiceMock.Setup(service => service.UpdateUser(existingUser))
+                      .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.UpdateUserInfo(userId, userInfo);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var returnUser = Assert.IsType<BusinessLogicDomain.API.Entities.User>(okResult.Value);
+        Assert.Equal(userInfo.Email, returnUser.Email);
+        Assert.Equal(userInfo.FirstName, returnUser.FirstName);
+        Assert.Equal(userInfo.LastName, returnUser.LastName);
+    }
 }
 
 public class UserProfileControllerTests

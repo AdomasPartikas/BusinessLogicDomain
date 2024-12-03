@@ -32,5 +32,13 @@ namespace BusinessLogicDomain.Tests.Unit.Fixtures
             UserName = "testUser",
             Password = "testPassword"
         };
+
+        public static UserInfoDTO UserInfoDTOMock => new()
+        {
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.Now.AddYears(-30),
+            Email = "testuser@example.com"
+        };
     }
 }
