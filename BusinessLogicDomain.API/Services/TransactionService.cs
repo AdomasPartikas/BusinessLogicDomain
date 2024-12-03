@@ -10,7 +10,7 @@ namespace BusinessLogicDomain.API.Services
         private readonly IMarketDataDomainClient _marketDataClient = marketDataClient;
         private readonly IDbService _dbService = dbService;
 
-        public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei
+        public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei Lauros
         {
             if(!ValidateTransaction(userProfile, transaction))
             {
@@ -111,7 +111,7 @@ namespace BusinessLogicDomain.API.Services
             await _dbService.UpdateUserProfile(userProfile);
         }
 
-        private bool ValidateTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei
+        private bool ValidateTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei Patriko
         {
             if(userProfile == null) //1
                 return false;

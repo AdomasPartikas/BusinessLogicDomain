@@ -36,7 +36,7 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData) //Naudojamas Kokybei
+        public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData) //Naudojamas Kokybei Lauros
         {
             if(_context.LivePriceDistinct.Any())
                 await UpdateLiveDailyMarketData(_context.LivePriceDistinct.ToList());
@@ -59,7 +59,7 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdatePriceHistory()
+        public async Task UpdatePriceHistory() //Kokybei Patriko
         {
             var livePriceDailies = await _context.LivePriceDaily
             .GroupBy(l => l.Company.ID)
