@@ -1,12 +1,54 @@
-public class UnitTestFixture : IDisposable
-{
-  public UnitTestFixture()
-  {
-    // Setup code here
-  }
+using BusinessLogicDomain.API.Entities;
+using BusinessLogicDomain.API.Models;
 
-  public void Dispose()
-  {
-    // Teardown code here
-  }
+namespace BusinessLogicDomain.Tests.Unit.Fixtures
+{
+    public static class UnitTestFixture
+    {
+        public static UserRegisterDto UserRegisterDTOMock => new()
+        {
+            UserName = "testUser",
+            Password = "testPassword",
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.Now.AddYears(-30),
+            Email = "testuser@example.com",
+            Balance = 1000,
+            SimulationLevel = BusinessLogicDomain.API.Entities.Enum.SimulationLevel.Easy
+        };
+
+        public static User UserMock => new()
+        {
+            ID = 1,
+            UserName = "testUser",
+            Password = "testPassword",
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.Now.AddYears(-30),
+            Email = "testuser@example.com"
+        };
+
+        public static UserLoginDto UserLoginDTOMock => new()
+        {
+            UserName = "testUser",
+            Password = "testPassword"
+        };
+
+        public static UserInfoDto UserInfoDTOMock => new()
+        {
+            FirstName = "Test",
+            LastName = "User",
+            DateOfBirth = DateTime.Now.AddYears(-30),
+            Email = "testuser@example.com"
+        };
+
+        public static UserProfile UserProfileMock => new()
+        {
+            User = UserMock,
+            Balance = 1000,
+            SimulationLevel = BusinessLogicDomain.API.Entities.Enum.SimulationLevel.Easy,
+            UserTransactions = new List<UserTransaction>(),
+            UserPortfolioStocks = new List<PortfolioStock>()
+        };
+    }
 }

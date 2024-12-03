@@ -28,7 +28,7 @@ namespace BusinessLogicDomain.API.Services
             await _dbService.InitializeCompanies(stockSymbols);
         }
 
-        public async Task RefreshMarketData()
+        public async Task RefreshMarketData() //Naudojamas Kokybei
         {
             var marketStatus = await _marketDataClient.MarketstatusAsync();
 

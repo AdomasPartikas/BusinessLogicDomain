@@ -10,17 +10,14 @@ using BusinessLogicDomain.MarketDataDomainAPIClient;
 
 namespace BusinessLogicDomain.Tests.Unit;
 
-public class DbServiceTests : IClassFixture<UnitTestFixture>
+public class DbServiceTests
 {
-    private readonly UnitTestFixture _fixture;
     private readonly Mock<IMapper> _mapperMock;
     private readonly DbService _dbService;
     private readonly YouTradeContext _context;
 
-    public DbServiceTests(UnitTestFixture fixture)
+    public DbServiceTests()
     {
-        _fixture = fixture;
-
         var options = new DbContextOptionsBuilder<YouTradeContext>()
             .UseInMemoryDatabase(databaseName: "TestDatabase")
             .Options;
@@ -261,7 +258,7 @@ public class DbServiceTests : IClassFixture<UnitTestFixture>
         _context.Database.EnsureCreated();
 
         // Arrange
-        var newUser = new UserRegisterDTO
+        var newUser = new UserRegisterDto
         {
             UserName = "testuser",
             Password = "password",

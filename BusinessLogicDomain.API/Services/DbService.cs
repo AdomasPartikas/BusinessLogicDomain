@@ -36,7 +36,7 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData)
+    /*    public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData) //Naudojamas Kokybei Lauros
         {
             if(_context.LivePriceDistinct.Any())
                 await UpdateLiveDailyMarketData(_context.LivePriceDistinct.ToList());
@@ -57,57 +57,143 @@ namespace BusinessLogicDomain.API.Services
             }
 
             await _context.SaveChangesAsync();
+        }*/
+    public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData)
+    {
+
+        if (marketData == null || marketData.Count() == 0)
+            throw new ArgumentException("Market data cannot be null or empty.");
+
+        if (_context.LivePriceDistinct.Any())
+            await UpdateLiveDailyMarketData(_context.LivePriceDistinct.ToList());
+
+        var livePriceDistincts = marketData
+            .Select(data => _mapper.Map<LivePriceDistinct>(data))
+            .ToList();
+
+        foreach (var record in livePriceDistincts)
+        {
+            var existingRecord = await GetExistingRecordAsync(record.ID);
+
+            if (existingRecord != null)
+            {
+                await UpdateExistingRecord(existingRecord, record);
+            }
+            else
+            {
+                await AddNewRecord(record);
+            }
         }
 
-        public async Task UpdatePriceHistory()
+        await _context.SaveChangesAsync();
+    }
+
+
+    private async Task<LivePriceDistinct?> GetExistingRecordAsync(string id)
+    {
+        return await _context.LivePriceDistinct.FirstOrDefaultAsync(l => l.ID == id);
+    }
+
+    // Atnaujinti esamą įrašą
+    private static Task UpdateExistingRecord(LivePriceDistinct existingRecord, LivePriceDistinct newRecord)
+    {
+        existingRecord.Price = newRecord.Price;
+        existingRecord.Date = newRecord.Date;
+
+        return Task.CompletedTask;
+    }
+
+    // Pridėti naują įrašą
+    private async Task AddNewRecord(LivePriceDistinct newRecord)
+    {
+        await _context.LivePriceDistinct.AddAsync(newRecord);
+    }
+
+        /*
+                public async Task UpdatePriceHistory() //Kokybei Patriko
+                {
+                    var livePriceDailies = await _context.LivePriceDaily
+                    .GroupBy(l => l.Company.ID)
+                    .Select(g => g.OrderByDescending(l => l.Date).FirstOrDefault())
+                    .ToListAsync();
+
+                    if(livePriceDailies.Count == 0)
+                        return; //TODO: Log reason for return
+
+                    var priceHistories = livePriceDailies.Select(data => _mapper.Map<PriceHistory>(data)).ToList();
+
+                    foreach (var priceHistory in priceHistories.ToList())
+                    {
+                        if (!await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDto>(priceHistory)))
+                            priceHistories.Remove(priceHistory);
+                    }
+
+                    await _context.PriceHistories.AddRangeAsync(priceHistories);
+                    await _context.SaveChangesAsync();
+
+                    //await RemovePriceHistoryDuplicates(); //Uncomment to remove duplicates (for testing purposes)
+
+                    await ClearLivePriceDaily();
+                }
+        */
+
+        public async Task UpdatePriceHistory() //Kokybei Patriko
         {
-            var livePriceDailies = await _context.LivePriceDaily
-            .GroupBy(l => l.Company.ID)
-            .Select(g => g.OrderByDescending(l => l.Date).FirstOrDefault())
-            .ToListAsync();
+            var livePriceDailies = await GetLatestLivePriceDailyEntriesAsync();
 
             if(livePriceDailies.Count == 0)
-                return; //TODO: Log reason for return
+                return;
 
-            var priceHistories = livePriceDailies.Select(data => _mapper.Map<PriceHistory>(data)).ToList();
+            var distinctPriceHistories = await GetDistinctPriceHistoriesAsync(livePriceDailies);
 
-            foreach (var priceHistory in priceHistories.ToList())
-            {
-                if (!await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDTO>(priceHistory)))
-                    priceHistories.Remove(priceHistory);
-            }
-
-            await _context.PriceHistories.AddRangeAsync(priceHistories);
-            await _context.SaveChangesAsync();
-
-            //await RemovePriceHistoryDuplicates(); //Uncomment to remove duplicates (for testing purposes)
+            if (distinctPriceHistories.Count != 0)
+                await SavePriceHistoriesAsync(distinctPriceHistories);
 
             await ClearLivePriceDaily();
         }
+        
+        private async Task<List<LivePriceDaily>> GetLatestLivePriceDailyEntriesAsync()
+        {
+            var latestLivePrice = await _context.LivePriceDaily
+                .GroupBy(l => l.Company.ID)
+                .Select(g => g.OrderByDescending(l => l.Date).FirstOrDefault())
+                .ToListAsync();
 
-        private async Task<bool> IsPriceHistoryDistinct(PriceHistoryDTO priceHistory)
+            if(latestLivePrice == null)
+                return [];
+
+            return latestLivePrice!;
+        }
+
+        private async Task<List<PriceHistory>> GetDistinctPriceHistoriesAsync(List<LivePriceDaily> livePriceDailies)
+        {
+            var priceHistories = livePriceDailies
+                .Select(data => _mapper.Map<PriceHistory>(data))
+                .ToList();
+
+            var distinctPriceHistories = new List<PriceHistory>();
+
+            foreach (var priceHistory in priceHistories)
+            {
+                if (await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDto>(priceHistory)))
+                    distinctPriceHistories.Add(priceHistory);
+            }
+
+            return distinctPriceHistories;
+        }
+
+        private async Task SavePriceHistoriesAsync(List<PriceHistory> priceHistories)
+        {
+            await _context.PriceHistories.AddRangeAsync(priceHistories);
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task<bool> IsPriceHistoryDistinct(PriceHistoryDto priceHistory)
         {
             var existingPriceHistory = await _context.PriceHistories
                 .FirstOrDefaultAsync(ph => ph.Company.ID == priceHistory.CompanySymbol && ph.Date == priceHistory.Date && ph.EODPrice == priceHistory.EODPrice);
 
             return existingPriceHistory == null;
-        }
-
-        private async Task RemovePriceHistoryDuplicates()
-        {
-            var duplicateGroups = _context.PriceHistories
-                .AsEnumerable()
-                .GroupBy(ph => new { ph.Date, ph.EODPrice, ph.Company.ID })
-                .Where(g => g.Count() > 1)
-                .ToList();
-
-            foreach (var group in duplicateGroups)
-            {
-                var duplicates = group.Skip(1).ToList();
-                _context.PriceHistories.RemoveRange(duplicates);
-            }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task ClearLivePriceDaily()
@@ -188,7 +274,7 @@ namespace BusinessLogicDomain.API.Services
             return userProfile;
         }
 
-        public async Task<User> CreateUser(UserRegisterDTO newUser)
+        public async Task<User> CreateUser(UserRegisterDto newUser)
         {
             var user = new User
             {
