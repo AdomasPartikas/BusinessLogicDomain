@@ -10,7 +10,7 @@ namespace BusinessLogicDomain.API.Services
         private readonly IMarketDataDomainClient _marketDataClient = marketDataClient;
         private readonly IDbService _dbService = dbService;
 
-        public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei Lauros
+        /*public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei Lauros
         {
             if(!ValidateTransaction(userProfile, transaction))
             {
@@ -47,7 +47,76 @@ namespace BusinessLogicDomain.API.Services
             await _dbService.UpdateTransaction(transaction);
 
             return transaction;
+        }*/
+
+    public async Task<UserTransaction> ExecuteTransaction(UserProfile userProfile, UserTransaction transaction)
+    {
+    
+        if (!ValidateTransaction(userProfile, transaction))
+        {
+            SetTransactionCancelled(transaction);
+            await _dbService.UpdateTransaction(transaction);
+            return transaction;
         }
+
+        if (!await IsMarketOpenAsync())
+        {
+            UpdateTransactionStatus(transaction, TransactionStatus.OnHold);
+            await _dbService.UpdateTransaction(transaction);
+            return transaction;
+        }
+
+        if (transaction.TransactionStatus == TransactionStatus.OnHold)
+        {
+            await RecalculateTransaction(transaction);
+        }
+
+        await HandleTransactionTypeAsync(userProfile, transaction);
+
+        UpdateTransactionStatus(transaction, TransactionStatus.Completed);
+        await _dbService.UpdateTransaction(transaction);
+
+        return transaction;
+    }
+
+    private async Task<bool> IsMarketOpenAsync()
+    {
+        var marketStatus = await _marketDataClient.MarketstatusAsync();
+
+        if (marketStatus == null)
+        {
+            throw new InvalidOperationException("Market status is null.");
+        }
+
+        return marketStatus.IsOpen;
+    }
+    private void UpdateTransactionStatus(UserTransaction transaction, TransactionStatus status)
+    {
+        transaction.TransactionStatus = status;
+        transaction.TimeOfTransaction = DateTime.Now;
+    }
+    private void SetTransactionCancelled(UserTransaction transaction)
+    {
+        UpdateTransactionStatus(transaction, TransactionStatus.Cancelled);
+    }    
+    private async Task HandleTransactionTypeAsync(UserProfile userProfile, UserTransaction transaction)
+    {
+        switch (transaction.TransactionType)
+        {
+            case TransactionType.Buy:
+                await ExecuteBuyTransaction(userProfile, transaction);
+                break;
+
+            case TransactionType.Sell:
+                await ExecuteSellTransaction(userProfile, transaction);
+                break;
+
+            default:
+                throw new InvalidOperationException($"Unsupported transaction type: {transaction.TransactionType}");
+        }
+    }
+    
+
         private async Task RecalculateTransaction(UserTransaction transaction)
         {
             var company = await _dbService.RetrieveCompanyBySymbol(transaction.Company.ID);

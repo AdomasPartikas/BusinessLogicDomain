@@ -36,7 +36,7 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData) //Naudojamas Kokybei Lauros
+    /*    public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData) //Naudojamas Kokybei Lauros
         {
             if(_context.LivePriceDistinct.Any())
                 await UpdateLiveDailyMarketData(_context.LivePriceDistinct.ToList());
@@ -57,7 +57,57 @@ namespace BusinessLogicDomain.API.Services
             }
 
             await _context.SaveChangesAsync();
+        }*/
+    public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData)
+    {
+
+        if (marketData == null || !marketData.Any())
+            throw new ArgumentException("Market data cannot be null or empty.");
+
+        if (_context.LivePriceDistinct.Any())
+            await UpdateLiveDailyMarketData(_context.LivePriceDistinct.ToList());
+
+        var livePriceDistincts = marketData
+            .Select(data => _mapper.Map<LivePriceDistinct>(data))
+            .ToList();
+
+        foreach (var record in livePriceDistincts)
+        {
+            var existingRecord = await GetExistingRecordAsync(record.ID);
+
+            if (existingRecord != null)
+            {
+                await UpdateExistingRecord(existingRecord, record);
+            }
+            else
+            {
+                await AddNewRecord(record);
+            }
         }
+
+        await _context.SaveChangesAsync();
+    }
+
+
+    private async Task<LivePriceDistinct?> GetExistingRecordAsync(string id)
+    {
+        return await _context.LivePriceDistinct.FirstOrDefaultAsync(l => l.ID == id);
+    }
+
+    // Atnaujinti esamą įrašą
+    private Task UpdateExistingRecord(LivePriceDistinct existingRecord, LivePriceDistinct newRecord)
+    {
+        existingRecord.Price = newRecord.Price;
+        existingRecord.Date = newRecord.Date;
+        
+        return Task.CompletedTask;
+    }
+
+    // Pridėti naują įrašą
+    private async Task AddNewRecord(LivePriceDistinct newRecord)
+    {
+        await _context.LivePriceDistinct.AddAsync(newRecord);
+    }
 
         /*
                 public async Task UpdatePriceHistory() //Kokybei Patriko
