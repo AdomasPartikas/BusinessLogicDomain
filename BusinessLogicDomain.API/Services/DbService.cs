@@ -59,30 +59,83 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
+        /*
+                public async Task UpdatePriceHistory() //Kokybei Patriko
+                {
+                    var livePriceDailies = await _context.LivePriceDaily
+                    .GroupBy(l => l.Company.ID)
+                    .Select(g => g.OrderByDescending(l => l.Date).FirstOrDefault())
+                    .ToListAsync();
+
+                    if(livePriceDailies.Count == 0)
+                        return; //TODO: Log reason for return
+
+                    var priceHistories = livePriceDailies.Select(data => _mapper.Map<PriceHistory>(data)).ToList();
+
+                    foreach (var priceHistory in priceHistories.ToList())
+                    {
+                        if (!await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDTO>(priceHistory)))
+                            priceHistories.Remove(priceHistory);
+                    }
+
+                    await _context.PriceHistories.AddRangeAsync(priceHistories);
+                    await _context.SaveChangesAsync();
+
+                    //await RemovePriceHistoryDuplicates(); //Uncomment to remove duplicates (for testing purposes)
+
+                    await ClearLivePriceDaily();
+                }
+        */
+
         public async Task UpdatePriceHistory() //Kokybei Patriko
         {
-            var livePriceDailies = await _context.LivePriceDaily
-            .GroupBy(l => l.Company.ID)
-            .Select(g => g.OrderByDescending(l => l.Date).FirstOrDefault())
-            .ToListAsync();
+            var livePriceDailies = await GetLatestLivePriceDailyEntriesAsync();
 
             if(livePriceDailies.Count == 0)
-                return; //TODO: Log reason for return
+                return;
 
-            var priceHistories = livePriceDailies.Select(data => _mapper.Map<PriceHistory>(data)).ToList();
+            var distinctPriceHistories = await GetDistinctPriceHistoriesAsync(livePriceDailies);
 
-            foreach (var priceHistory in priceHistories.ToList())
-            {
-                if (!await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDTO>(priceHistory)))
-                    priceHistories.Remove(priceHistory);
-            }
-
-            await _context.PriceHistories.AddRangeAsync(priceHistories);
-            await _context.SaveChangesAsync();
-
-            //await RemovePriceHistoryDuplicates(); //Uncomment to remove duplicates (for testing purposes)
+            if (distinctPriceHistories.Count != 0)
+                await SavePriceHistoriesAsync(distinctPriceHistories);
 
             await ClearLivePriceDaily();
+        }
+        
+        private async Task<List<LivePriceDaily>> GetLatestLivePriceDailyEntriesAsync()
+        {
+            var latestLivePrice = await _context.LivePriceDaily
+                .GroupBy(l => l.Company.ID)
+                .Select(g => g.OrderByDescending(l => l.Date).FirstOrDefault())
+                .ToListAsync();
+
+            if(latestLivePrice == null)
+                return [];
+
+            return latestLivePrice!;
+        }
+
+        private async Task<List<PriceHistory>> GetDistinctPriceHistoriesAsync(List<LivePriceDaily> livePriceDailies)
+        {
+            var priceHistories = livePriceDailies
+                .Select(data => _mapper.Map<PriceHistory>(data))
+                .ToList();
+
+            var distinctPriceHistories = new List<PriceHistory>();
+
+            foreach (var priceHistory in priceHistories)
+            {
+                if (await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDTO>(priceHistory)))
+                    distinctPriceHistories.Add(priceHistory);
+            }
+
+            return distinctPriceHistories;
+        }
+
+        private async Task SavePriceHistoriesAsync(List<PriceHistory> priceHistories)
+        {
+            await _context.PriceHistories.AddRangeAsync(priceHistories);
+            await _context.SaveChangesAsync();
         }
 
         private async Task<bool> IsPriceHistoryDistinct(PriceHistoryDTO priceHistory)

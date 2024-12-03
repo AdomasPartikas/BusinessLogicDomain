@@ -111,40 +111,89 @@ namespace BusinessLogicDomain.API.Services
             await _dbService.UpdateUserProfile(userProfile);
         }
 
-        private bool ValidateTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei Patriko
+        /*
+                private bool ValidateTransaction(UserProfile userProfile, UserTransaction transaction) //Naudojamas Kokybei Patriko
+                {
+                    //Naudosime SRP
+                    //Iskaidisime i skitingas mazesnes funkcijas, sumazinsime sio metodo dydi
+
+                    if(userProfile == null) //1 
+                        return false;
+
+                    if(transaction == null) //2
+                        return false;
+
+                    if(transaction.Company == null) //3
+                        return false;
+
+                    if(transaction.Quantity <= 0) //4
+                        return false;
+
+                    if(transaction.TransactionValue <= 0) //5
+                        return false;
+
+                    if(transaction.StockValue <= 0) //6
+                        return false;
+
+                    if(transaction.TransactionType == TransactionType.Buy) //7
+                    {
+                        if(transaction.TransactionValue > userProfile.Balance) //8
+                            return false;
+                    }
+                    else if(transaction.TransactionType == TransactionType.Sell) //9
+                    {
+                        if(userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).Any() && //10
+                            transaction.Quantity > userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).FirstOrDefault()!.Quantity) //11
+                            return false;
+                    }
+
+                    return true;
+                }
+        */
+
+        private static bool ValidateTransaction(UserProfile userProfile, UserTransaction transaction)
         {
-            if(userProfile == null) //1
+            if (IsInvalidUserProfile(userProfile)) //User if
                 return false;
 
-            if(transaction == null) //2
+            if (IsInvalidTransaction(transaction)) //All transaction ifs
                 return false;
 
-            if(transaction.Company == null) //3
-                return false;
-
-            if(transaction.Quantity <= 0) //4
-                return false;
-
-            if(transaction.TransactionValue <= 0) //5
-                return false;
-
-            if(transaction.StockValue <= 0) //6
-                return false;
-
-            if(transaction.TransactionType == TransactionType.Buy) //7
+            return transaction.TransactionType switch //Switch with buy/sell
             {
-                if(transaction.TransactionValue > userProfile.Balance) //8
-                    return false;
-            }
-            else if(transaction.TransactionType == TransactionType.Sell) //9
-            {
-                if(userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).Any() && //10
-                    transaction.Quantity > userProfile.UserPortfolioStocks.Where(x => x.Company.ID == transaction.Company.ID).FirstOrDefault()!.Quantity) //11
-                    return false;
-            }
-
-            return true;
+                TransactionType.Buy => IsBuyTransactionValid(userProfile, transaction),
+                TransactionType.Sell => IsSellTransactionValid(userProfile, transaction),
+                _ => false,
+            };
         }
+
+        private static bool IsInvalidUserProfile(UserProfile userProfile)
+        {
+            return userProfile == null;
+        }
+
+        private static bool IsInvalidTransaction(UserTransaction transaction)
+        {
+            return transaction == null ||
+                   transaction.Company == null ||
+                   transaction.Quantity <= 0 ||
+                   transaction.TransactionValue <= 0 ||
+                   transaction.StockValue <= 0;
+        }
+
+        private static bool IsBuyTransactionValid(UserProfile userProfile, UserTransaction transaction)
+        {
+            return transaction.TransactionValue <= userProfile.Balance;
+        }
+
+        private static bool IsSellTransactionValid(UserProfile userProfile, UserTransaction transaction)
+        {
+            var portfolioStock = userProfile.UserPortfolioStocks
+                .FirstOrDefault(x => x.Company.ID == transaction.Company.ID);
+
+            return portfolioStock != null && transaction.Quantity <= portfolioStock.Quantity;
+        }
+
 
         public async Task<UserTransaction> CancelTransaction(UserTransaction transaction)
         {
