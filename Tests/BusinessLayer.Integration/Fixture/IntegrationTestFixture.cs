@@ -1,12 +1,16 @@
-public class IntegrationTestFixture : IDisposable
+namespace BusinessLogicDomain.Tests.Integration.Fixtures
 {
-    public IntegrationTestFixture()
+    public class IntegrationTestFixture : IDisposable
     {
-        // Setup code here
-    }
 
-    public void Dispose()
-    {
-        // Cleanup code here
+        public IntegrationTestFixture()
+        {
+            // Setup code here
+        }
+
+        public void Dispose()
+        {
+            GC.SuppressFinalize(this);
+        }
     }
 }
