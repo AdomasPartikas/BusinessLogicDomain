@@ -61,7 +61,7 @@ namespace BusinessLogicDomain.API.Services
     public async Task UpdateLiveDistinctMarketData(ICollection<MarketDataDto> marketData)
     {
 
-        if (marketData == null || !marketData.Any())
+        if (marketData == null || marketData.Count() == 0)
             throw new ArgumentException("Market data cannot be null or empty.");
 
         if (_context.LivePriceDistinct.Any())
@@ -95,11 +95,11 @@ namespace BusinessLogicDomain.API.Services
     }
 
     // Atnaujinti esamą įrašą
-    private Task UpdateExistingRecord(LivePriceDistinct existingRecord, LivePriceDistinct newRecord)
+    private static Task UpdateExistingRecord(LivePriceDistinct existingRecord, LivePriceDistinct newRecord)
     {
         existingRecord.Price = newRecord.Price;
         existingRecord.Date = newRecord.Date;
-        
+
         return Task.CompletedTask;
     }
 

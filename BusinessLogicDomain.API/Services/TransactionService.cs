@@ -90,7 +90,7 @@ namespace BusinessLogicDomain.API.Services
 
         return marketStatus.IsOpen;
     }
-    private void UpdateTransactionStatus(UserTransaction transaction, TransactionStatus status)
+    private static void UpdateTransactionStatus(UserTransaction transaction, TransactionStatus status)
     {
         transaction.TransactionStatus = status;
         transaction.TimeOfTransaction = DateTime.Now;
@@ -115,7 +115,7 @@ namespace BusinessLogicDomain.API.Services
                 throw new InvalidOperationException($"Unsupported transaction type: {transaction.TransactionType}");
         }
     }
-    
+
 
         private async Task RecalculateTransaction(UserTransaction transaction)
         {
