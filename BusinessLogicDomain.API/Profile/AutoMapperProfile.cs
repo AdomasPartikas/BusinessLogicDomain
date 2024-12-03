@@ -32,7 +32,7 @@ namespace BusinessLogicDomain.API.Profile
                 .ForMember(dest => dest.EODPrice, opt => opt.MapFrom(src => src.Price))
                 .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Date));
 
-            CreateMap<PriceHistory, PriceHistoryDTO>()
+            CreateMap<PriceHistory, PriceHistoryDto>()
                 .ForMember(dest => dest.CompanySymbol, opt => opt.MapFrom(src => src.Company.ID));
         }
     }

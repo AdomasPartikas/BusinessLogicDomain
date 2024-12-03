@@ -124,7 +124,7 @@ namespace BusinessLogicDomain.API.Services
 
                     foreach (var priceHistory in priceHistories.ToList())
                     {
-                        if (!await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDTO>(priceHistory)))
+                        if (!await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDto>(priceHistory)))
                             priceHistories.Remove(priceHistory);
                     }
 
@@ -175,7 +175,7 @@ namespace BusinessLogicDomain.API.Services
 
             foreach (var priceHistory in priceHistories)
             {
-                if (await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDTO>(priceHistory)))
+                if (await IsPriceHistoryDistinct(_mapper.Map<PriceHistoryDto>(priceHistory)))
                     distinctPriceHistories.Add(priceHistory);
             }
 
@@ -188,7 +188,7 @@ namespace BusinessLogicDomain.API.Services
             await _context.SaveChangesAsync();
         }
 
-        private async Task<bool> IsPriceHistoryDistinct(PriceHistoryDTO priceHistory)
+        private async Task<bool> IsPriceHistoryDistinct(PriceHistoryDto priceHistory)
         {
             var existingPriceHistory = await _context.PriceHistories
                 .FirstOrDefaultAsync(ph => ph.Company.ID == priceHistory.CompanySymbol && ph.Date == priceHistory.Date && ph.EODPrice == priceHistory.EODPrice);
